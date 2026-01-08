@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(if exist package.json echo Found)",
+      "Bash(mkdir:*)",
+      "WebSearch"
+    ]
+  }
+}
