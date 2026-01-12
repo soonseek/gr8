@@ -55,22 +55,24 @@ workflow_status:
         output: "Product Requirements Document with FRs and NFRs"
 
       - id: "create-ux-design"
-        status: "conditional"
+        status: "C:\\Users\\송민정\\ClaudecodeProjects\\gr8\\_bmad-output\\planning-artifacts\\ux-design-specification.md"
         condition: "if_has_ui"
         agent: "ux-designer"
         command: "/bmad:bmm:workflows:create-ux-design"
-        note: "Determined after PRD - user/agent decides if needed"
+        completed: "2026-01-09"
+        note: "UX Design Specification complete with all 14 steps"
 
   # Phase 3: Solutioning (Required)
   - phase: 3
     name: "Solutioning"
     workflows:
       - id: "create-architecture"
-        status: "required"
+        status: "C:\\Users\\송민정\\ClaudecodeProjects\\gr8\\_bmad-output\\planning-artifacts\\architecture.md"
         agent: "architect"
         command: "/bmad:bmm:workflows:create-architecture"
-        output: "System architecture document"
-        note: "Complete system design for greenfield projects"
+        completed: "2026-01-12"
+        output: "Complete architecture document with 18 decisions, 25 patterns, project structure"
+        note: "18 architectural decisions, 25 implementation patterns, comprehensive validation"
 
       - id: "create-epics-and-stories"
         status: "required"

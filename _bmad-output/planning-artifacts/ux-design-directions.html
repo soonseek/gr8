@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>gr8 - RSI 과매도/과매수 전략 백테스팅</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            background: #0a0a0a;
+            color: #F9FAFB;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* ===== SIDEBAR NAVIGATION ===== */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: #111827;
+            border-right: 1px solid #1f2937;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .sidebar::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: #374151;
+        }
+
+        .sidebar-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #1f2937;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #0487FF;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: #0487FF;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(4, 135, 255, 0.3);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 20px 16px;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6B7280;
+            padding: 0 12px 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: #9CA3AF;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin-bottom: 2px;
+        }
+
+        .nav-item:hover {
+            background: rgba(4, 135, 255, 0.1);
+            color: #F9FAFB;
+        }
+
+        .nav-item.active {
+            background: rgba(4, 135, 255, 0.15);
+            color: #0487FF;
+            border-left: 2px solid #0487FF;
+            padding-left: 10px;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9CA3AF;
+        }
+
+        .nav-item.active .nav-icon {
+            color: #0487FF;
+        }
+
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid #1f2937;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(31, 41, 55, 0.5);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #8B5CF6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #F9FAFB;
+            margin-bottom: 2px;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #9CA3AF;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #0a0a0a;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            height: 64px;
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #1f2937;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            flex-shrink: 0;
+        }
+
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #6B7280;
+        }
+
+        .breadcrumb span {
+            color: #9CA3AF;
+        }
+
+        .breadcrumb .current {
+            color: #F9FAFB;
+            font-weight: 500;
+        }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .top-bar-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: rgba(31, 41, 55, 0.5);
+            border: 1px solid #374151;
+            color: #F9FAFB;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .top-bar-btn:hover {
+            background: rgba(4, 135, 255, 0.1);
+            border-color: #0487FF;
+        }
+
+        .top-bar-btn.primary {
+            background: #0487FF;
+            border-color: #0487FF;
+            box-shadow: 0 4px 12px rgba(4, 135, 255, 0.3);
+        }
+
+        .top-bar-btn.primary:hover {
+            box-shadow: 0 6px 16px rgba(4, 135, 255, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .action-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px;
+        }
+
+        /* ===== STRATEGY HEADER ===== */
+        .strategy-header {
+            margin-bottom: 32px;
+        }
+
+        .strategy-title-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .strategy-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #F9FAFB;
+            margin-bottom: 8px;
+        }
+
+        .strategy-subtitle {
+            font-size: 16px;
+            color: #9CA3AF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-primary {
+            background: rgba(4, 135, 255, 0.15);
+            color: #0487FF;
+            border: 1px solid rgba(4, 135, 255, 0.3);
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: #F59E0B;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .strategy-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-secondary {
+            background: rgba(31, 41, 55, 0.8);
+            color: #F9FAFB;
+            border: 1px solid #374151;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(4, 135, 255, 0.1);
+            border-color: #0487FF;
+        }
+
+        .btn-primary {
+            background: #0487FF;
+            color: white;
+            box-shadow: 0 4px 12px rgba(4, 135, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 16px rgba(4, 135, 255, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* ===== MAIN GRID ===== */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* ===== PARAMETER PANEL ===== */
+        .parameter-panel {
+            background: #1f2937;
+            border: 1px solid #1f2937;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #F9FAFB;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-icon {
+            width: 24px;
+            height: 24px;
+            background: #0487FF;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .reset-btn {
+            font-size: 12px;
+            color: #0487FF;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: rgba(4, 135, 255, 0.1);
+        }
+
+        .parameter-group {
+            margin-bottom: 24px;
+        }
+
+        .parameter-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .parameter-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .parameter-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #F9FAFB;
+        }
+
+        .parameter-value {
+            font-family: 'Pretendard', 'JetBrains Mono', monospace;
+            font-variant-numeric: tabular-nums;
+            font-size: 14px;
+            font-weight: 600;
+            color: #0487FF;
+        }
+
+        .parameter-description {
+            font-size: 12px;
+            color: #6B7280;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .slider-container {
+            position: relative;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #374151;
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #0487FF;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(4, 135, 255, 0.4);
+            transition: all 0.2s;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(4, 135, 255, 0.6);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #0487FF;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(4, 135, 255, 0.4);
+            transition: all 0.2s;
+        }
+
+        .slider::-moz-range-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(4, 135, 255, 0.6);
+        }
+
+        .slider-track {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            height: 6px;
+            background: #0487FF;
+            border-radius: 3px;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 4px;
+            color: #6B7280;
+            cursor: help;
+            font-size: 12px;
+        }
+
+        .tooltip:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            background: #1f2937;
+            color: #F9FAFB;
+            font-size: 12px;
+            border-radius: 6px;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            border: 1px solid #374151;
+            z-index: 100;
+        }
+
+        .parameter-hint {
+            margin-top: 8px;
+            padding: 10px 12px;
+            background: rgba(4, 135, 255, 0.08);
+            border-left: 2px solid #0487FF;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #9CA3AF;
+            line-height: 1.4;
+        }
+
+        .parameter-hint strong {
+            color: #0487FF;
+            font-weight: 600;
+        }
+
+        /* ===== CHART PANEL ===== */
+        .chart-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .chart-card {
+            background: #1f2937;
+            border: 1px solid #1f2937;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #F9FAFB;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chart-control-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            background: rgba(31, 41, 55, 0.8);
+            border: 1px solid #374151;
+            color: #9CA3AF;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chart-control-btn:hover {
+            background: rgba(4, 135, 255, 0.1);
+            border-color: #0487FF;
+            color: #F9FAFB;
+        }
+
+        .chart-control-btn.active {
+            background: rgba(4, 135, 255, 0.2);
+            border-color: #0487FF;
+            color: #0487FF;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            background: #111827;
+            border-radius: 12px;
+            border: 1px solid #1f2937;
+            overflow: hidden;
+        }
+
+        #tradingChart {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ===== BACKTEST PROGRESS ===== */
+        .backtest-progress {
+            background: #1f2937;
+            border: 1px solid #1f2937;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .progress-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #F9FAFB;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-icon {
+            width: 20px;
+            height: 20px;
+            color: #0487FF;
+        }
+
+        .progress-status {
+            font-size: 12px;
+            color: #0487FF;
+            background: rgba(4, 135, 255, 0.15);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .progress-bar-container {
+            margin-bottom: 12px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #1f2937;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #0487FF;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #9CA3AF;
+        }
+
+        .progress-stages {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .progress-stage {
+            flex: 1;
+            padding: 10px 12px;
+            background: rgba(31, 41, 55, 0.5);
+            border-radius: 8px;
+            border: 1px solid #374151;
+            font-size: 12px;
+            color: #6B7280;
+            text-align: center;
+        }
+
+        .progress-stage.active {
+            background: rgba(4, 135, 255, 0.15);
+            border-color: #0487FF;
+            color: #0487FF;
+            font-weight: 500;
+        }
+
+        .progress-stage.completed {
+            background: rgba(4, 135, 255, 0.15);
+            border-color: #0487FF;
+            color: #0487FF;
+        }
+
+        /* ===== RESULTS SECTION ===== */
+        .results-section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .result-card {
+            background: #1f2937;
+            border: 1px solid #1f2937;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s;
+        }
+
+        .result-card:hover {
+            border-color: #0487FF;
+            box-shadow: 0 4px 16px rgba(4, 135, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .result-label {
+            font-size: 12px;
+            color: #9CA3AF;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .result-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .result-value {
+            font-family: 'Pretendard', 'JetBrains Mono', monospace;
+            font-variant-numeric: tabular-nums;
+            font-size: 28px;
+            font-weight: 700;
+            color: #F9FAFB;
+            margin-bottom: 4px;
+        }
+
+        .result-value.positive {
+            color: #10B981;
+        }
+
+        .result-value.negative {
+            color: #EF4444;
+        }
+
+        .result-change {
+            font-size: 12px;
+            color: #6B7280;
+        }
+
+        /* ===== BLOCKCHAIN VERIFICATION ===== */
+        .verification-section {
+            margin-top: 24px;
+            background: #1f2937;
+            border: 1px solid #1f2937;
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .verification-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .verification-icon {
+            width: 40px;
+            height: 40px;
+            background: #8B5CF6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .verification-info {
+            flex: 1;
+        }
+
+        .verification-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #F9FAFB;
+            margin-bottom: 4px;
+        }
+
+        .verification-description {
+            font-size: 12px;
+            color: #9CA3AF;
+        }
+
+        .verification-btn {
+            padding: 8px 16px;
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 6px;
+            color: #8B5CF6;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .verification-btn:hover {
+            background: rgba(139, 92, 246, 0.25);
+            border-color: #8B5CF6;
+        }
+
+        /* ===== STATS TABLE ===== */
+        .stats-section {
+            margin-top: 24px;
+            background: #1f2937;
+            border: 1px solid #1f2937;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .stat-item {
+            padding: 16px;
+            background: #111827;
+            border-radius: 8px;
+            border: 1px solid #1f2937;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #9CA3AF;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-family: 'Pretendard', 'JetBrains Mono', monospace;
+            font-variant-numeric: tabular-nums;
+            font-size: 20px;
+            font-weight: 600;
+            color: #F9FAFB;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #111827;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4B5563;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- ===== SIDEBAR ===== -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i data-lucide="zap" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    <span>gr8</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">메인</div>
+                    <a href="#" class="nav-item">
+                        <div class="nav-icon">
+                            <i data-lucide="layout"></i>
+                        </div>
+                        <span>대시보드</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <div class="nav-icon">
+                            <i data-lucide="bar-chart-3"></i>
+                        </div>
+                        <span>내 전략</span>
+                    </a>
+                    <a href="#" class="nav-item active">
+                        <div class="nav-icon">
+                            <i data-lucide="trending-up"></i>
+                        </div>
+                        <span>백테스팅</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">마켓플레이스</div>
+                    <a href="#" class="nav-item">
+                        <div class="nav-icon">
+                            <i data-lucide="target"></i>
+                        </div>
+                        <span>템플릿</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <div class="nav-icon">
+                            <i data-lucide="link"></i>
+                        </div>
+                        <span>전략 연결</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <div class="nav-icon">
+                            <i data-lucide="users"></i>
+                        </div>
+                        <span>크리에이터</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">리소스</div>
+                    <a href="#" class="nav-item">
+                        <div class="nav-icon">
+                            <i data-lucide="book-open"></i>
+                        </div>
+                        <span>학습 가이드</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <div class="nav-icon">
+                            <i data-lucide="message-square"></i>
+                        </div>
+                        <span>커뮤니티</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <div class="nav-icon">
+                            <i data-lucide="bell"></i>
+                        </div>
+                        <span>알림</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">설정</div>
+                    <a href="#" class="nav-item">
+                        <div class="nav-icon">
+                            <i data-lucide="settings"></i>
+                        </div>
+                        <span>환경 설정</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <div class="nav-icon">
+                            <i data-lucide="lock"></i>
+                        </div>
+                        <span>지갑 연결</span>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">김</div>
+                    <div class="user-info">
+                        <div class="user-name">김준혁</div>
+                        <div class="user-role">Pro 트레이더</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ===== MAIN CONTENT ===== -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <div class="breadcrumb">
+                        <span>내 전략</span>
+                        <span>›</span>
+                        <span class="current">RSI 과매도/과매수</span>
+                    </div>
+                </div>
+                <div class="top-bar-right">
+                    <button class="top-bar-btn">
+                        <i data-lucide="share-2" class="action-icon"></i>
+                        <span>공유하기</span>
+                    </button>
+                    <button class="top-bar-btn">
+                        <i data-lucide="star" class="action-icon"></i>
+                        <span>즐겨찾기</span>
+                    </button>
+                    <button class="top-bar-btn primary">
+                        <i data-lucide="play" class="action-icon"></i>
+                        <span>실전 적용</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Strategy Header -->
+                <div class="strategy-header">
+                    <div class="strategy-title-row">
+                        <div>
+                            <h1 class="strategy-title">RSI 과매도/과매수 전략</h1>
+                            <div class="strategy-subtitle">
+                                <span class="badge badge-primary">인기 전략</span>
+                                <span class="badge badge-success">수익률 +23.4%</span>
+                                <span style="color: #6B7280;">•</span>
+                                <span>생성된 전략</span>
+                                <span style="color: #6B7280;">•</span>
+                                <span>마지막 수정: 2시간 전</span>
+                            </div>
+                        </div>
+                        <div class="strategy-actions">
+                            <button class="btn btn-secondary">
+                                <i data-lucide="copy" style="width: 16px; height: 16px;"></i>
+                                <span>복제</span>
+                            </button>
+                            <button class="btn btn-primary">
+                                <i data-lucide="zap" style="width: 16px; height: 16px;"></i>
+                                <span>백테스트 실행</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Grid -->
+                <div class="main-grid">
+                    <!-- Parameter Panel -->
+                    <div class="parameter-panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <div class="panel-icon">
+                                    <i data-lucide="sliders" style="width: 14px; height: 14px;"></i>
+                                </div>
+                                <span>파라미터 조정</span>
+                            </div>
+                            <button class="reset-btn">기본값으로</button>
+                        </div>
+
+                        <!-- RSI Period -->
+                        <div class="parameter-group">
+                            <div class="parameter-label">
+                                <span class="parameter-name">RSI 기간</span>
+                                <span class="parameter-value">14</span>
+                            </div>
+                            <div class="parameter-description">RSI 계산에 사용할 기간</div>
+                            <div class="slider-container">
+                                <div class="slider-track" style="width: 40%;"></div>
+                                <input type="range" class="slider" min="2" max="30" value="14">
+                            </div>
+                            <div class="parameter-hint">
+                                <strong>💡 팁:</strong> 이 값을 높이면 → 더 보수적으로 매수해요
+                            </div>
+                        </div>
+
+                        <!-- Oversold Level -->
+                        <div class="parameter-group">
+                            <div class="parameter-label">
+                                <span class="parameter-name">과매도 기준</span>
+                                <span class="parameter-value">30</span>
+                            </div>
+                            <div class="parameter-description">
+                                RSI가 이 값 아래로 떨어지면 매수
+                                <span class="tooltip" data-tip="과매도: 가격이 과도하게 하락한 상태">ⓘ</span>
+                            </div>
+                            <div class="slider-container">
+                                <div class="slider-track" style="width: 30%;"></div>
+                                <input type="range" class="slider" min="10" max="40" value="30">
+                            </div>
+                            <div class="parameter-hint">
+                                <strong>💡 팁:</strong> 이 값을 낮추면 → 더 확신이 들 때 매수해요
+                            </div>
+                        </div>
+
+                        <!-- Overbought Level -->
+                        <div class="parameter-group">
+                            <div class="parameter-label">
+                                <span class="parameter-name">과매수 기준</span>
+                                <span class="parameter-value">70</span>
+                            </div>
+                            <div class="parameter-description">
+                                RSI가 이 값 위로 오르면 매도
+                                <span class="tooltip" data-tip="과매수: 가격이 과도하게 상승한 상태">ⓘ</span>
+                            </div>
+                            <div class="slider-container">
+                                <div class="slider-track" style="width: 70%;"></div>
+                                <input type="range" class="slider" min="60" max="90" value="70">
+                            </div>
+                            <div class="parameter-hint">
+                                <strong>💡 팁:</strong> 이 값을 높이면 → 더 오래 보유해요
+                            </div>
+                        </div>
+
+                        <!-- Stop Loss -->
+                        <div class="parameter-group">
+                            <div class="parameter-label">
+                                <span class="parameter-name">손절가 (%)</span>
+                                <span class="parameter-value">-5.0</span>
+                            </div>
+                            <div class="parameter-description">
+                                이 비율만큼 손실 시 자동 매도
+                                <span class="tooltip" data-tip="손절가: 손실을 제한하는 가격">ⓘ</span>
+                            </div>
+                            <div class="slider-container">
+                                <div class="slider-track" style="width: 50%;"></div>
+                                <input type="range" class="slider" min="1" max="20" value="5">
+                            </div>
+                            <div class="parameter-hint">
+                                <strong>💡 팁:</strong> 이 값을 높이면 → 더 넓게 손절허용해요
+                            </div>
+                        </div>
+
+                        <!-- Take Profit -->
+                        <div class="parameter-group">
+                            <div class="parameter-label">
+                                <span class="parameter-name">익절가 (%)</span>
+                                <span class="parameter-value">+15.0</span>
+                            </div>
+                            <div class="parameter-description">
+                                이 비율만큼 수익 시 자동 매도
+                                <span class="tooltip" data-tip="익절가: 수익을 확정하는 가격">ⓘ</span>
+                            </div>
+                            <div class="slider-container">
+                                <div class="slider-track" style="width: 75%;"></div>
+                                <input type="range" class="slider" min="5" max="50" value="15">
+                            </div>
+                            <div class="parameter-hint">
+                                <strong>💡 팁:</strong> 이 값을 낮추면 → 더 자주 익절해요
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart Panel -->
+                    <div class="chart-panel">
+                        <!-- Chart Card -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <div class="chart-title">
+                                    <i data-lucide="bar-chart-2" style="width: 18px; height: 18px;"></i>
+                                    <span>가격 차트 & RSI 인디케이터</span>
+                                </div>
+                                <div class="chart-controls">
+                                    <button class="chart-control-btn">1D</button>
+                                    <button class="chart-control-btn active">1W</button>
+                                    <button class="chart-control-btn">1M</button>
+                                    <button class="chart-control-btn">3M</button>
+                                    <button class="chart-control-btn">1Y</button>
+                                    <button class="chart-control-btn">ALL</button>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="tradingChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Backtest Progress -->
+                        <div class="backtest-progress">
+                            <div class="progress-header">
+                                <div class="progress-title">
+                                    <i data-lucide="zap" class="progress-icon"></i>
+                                    <span>백테스트 실행 중</span>
+                                </div>
+                                <div class="progress-status">진행 중</div>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 67%;"></div>
+                                </div>
+                            </div>
+                            <div class="progress-info">
+                                <span>약 30초 소요 예정</span>
+                                <span>67% 완료</span>
+                            </div>
+                            <div class="progress-stages">
+                                <div class="progress-stage completed">데이터 로딩</div>
+                                <div class="progress-stage active">백테스팅 중</div>
+                                <div class="progress-stage">결과 생성</div>
+                                <div class="progress-stage">완료</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div class="results-section">
+                    <div class="result-card">
+                        <div class="result-label">
+                            <i data-lucide="trend-up" class="result-icon"></i>
+                            <span>총 수익률</span>
+                        </div>
+                        <div class="result-value positive">+23.4%</div>
+                        <div class="result-change">vs -2.1% (HODL)</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-label">
+                            <i data-lucide="dollar-sign" class="result-icon"></i>
+                            <span>최대 수익</span>
+                        </div>
+                        <div class="result-value positive">+45.2%</div>
+                        <div class="result-change">단일 거래 기준</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-label">
+                            <i data-lucide="bar-chart-2" class="result-icon"></i>
+                            <span>승률</span>
+                        </div>
+                        <div class="result-value">68.5%</div>
+                        <div class="result-change">142건 중 97건 승리</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-label">
+                            <i data-lucide="alert-triangle" class="result-icon"></i>
+                            <span>최대 손실 (MDD)</span>
+                        </div>
+                        <div class="result-value negative">-12.8%</div>
+                        <div class="result-change">2024-03-15 발생</div>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-section">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <div class="panel-icon">
+                                <i data-lucide="chart-bar" style="width: 14px; height: 14px;"></i>
+                            </div>
+                            <span>상세 통계</span>
+                        </div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">총 거래 횟수</div>
+                            <div class="stat-value">142</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">평균 보유 기간</div>
+                            <div class="stat-value">3.2일</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Sharpe Ratio</div>
+                            <div class="stat-value">2.34</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">평균 수익률</div>
+                            <div class="stat-value positive">+3.8%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">평균 손실률</div>
+                            <div class="stat-value negative">-2.1%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Profit Factor</div>
+                            <div class="stat-value">2.15</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">총 수수료</div>
+                            <div class="stat-value">0.15 ETH</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">백테스트 기간</div>
+                            <div class="stat-value">180일</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">초기 자본</div>
+                            <div class="stat-value">10 ETH</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Blockchain Verification -->
+                <div class="verification-section">
+                    <div class="verification-header">
+                        <div class="verification-icon">
+                            <i data-lucide="link" style="width: 20px; height: 20px;"></i>
+                        </div>
+                        <div class="verification-info">
+                            <div class="verification-title">블록체인에 기록된 백테스트</div>
+                            <div class="verification-description">
+                                이 백테스트 결과는 Ethereum 블록체인에 영구 기록되었습니다.
+                                <span style="color: #0487FF;">Tx #0x8f3a...2c1b</span>
+                            </div>
+                        </div>
+                        <button class="verification-btn">
+                            <i data-lucide="search" style="width: 14px; height: 14px;"></i>
+                            <span>블록 익스플로러에서 확인</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // TradingView-style Chart Drawing
+        const canvas = document.getElementById('tradingChart');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.offsetWidth;
+            canvas.height = container.offsetHeight;
+            drawChart();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Generate mock candlestick data
+        function generateCandlestickData(count) {
+            const data = [];
+            let price = 100 + Math.random() * 50;
+
+            for (let i = 0; i < count; i++) {
+                const volatility = 2 + Math.random() * 3;
+                const open = price;
+                const change = (Math.random() - 0.5) * volatility;
+                const close = open + change;
+                const high = Math.max(open, close) + Math.random() * volatility;
+                const low = Math.min(open, close) - Math.random() * volatility;
+
+                data.push({ open, high, low, close });
+                price = close;
+            }
+            return data;
+        }
+
+        // Draw chart
+        function drawChart() {
+            const width = canvas.width;
+            const height = canvas.height;
+
+            // Clear canvas
+            ctx.fillStyle = '#111827';
+            ctx.fillRect(0, 0, width, height);
+
+            // Generate data
+            const candleData = generateCandlestickData(60);
+
+            // Calculate scale
+            const allPrices = candleData.flatMap(d => [d.high, d.low]);
+            const minPrice = Math.min(...allPrices);
+            const maxPrice = Math.max(...allPrices);
+            const priceRange = maxPrice - minPrice;
+
+            // Chart dimensions
+            const padding = { top: 20, right: 60, bottom: 30, left: 10 };
+            const chartWidth = width - padding.left - padding.right;
+            const chartHeight = height - padding.top - padding.bottom;
+
+            const candleWidth = chartWidth / candleData.length * 0.7;
+            const candleGap = chartWidth / candleData.length * 0.3;
+
+            // Draw grid lines
+            ctx.strokeStyle = '#1f2937';
+            ctx.lineWidth = 1;
+
+            // Horizontal grid lines
+            for (let i = 0; i <= 5; i++) {
+                const y = padding.top + (chartHeight / 5) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding.left, y);
+                ctx.lineTo(width - padding.right, y);
+                ctx.stroke();
+
+                // Price labels
+                const price = maxPrice - (priceRange / 5) * i;
+                ctx.fillStyle = '#6B7280';
+                ctx.font = '11px Pretendard';
+                ctx.textAlign = 'left';
+                ctx.fillText(price.toFixed(2), width - padding.right + 8, y + 4);
+            }
+
+            // Vertical grid lines
+            for (let i = 0; i <= 10; i++) {
+                const x = padding.left + (chartWidth / 10) * i;
+                ctx.beginPath();
+                ctx.moveTo(x, padding.top);
+                ctx.lineTo(x, height - padding.bottom);
+                ctx.stroke();
+            }
+
+            // Draw candlesticks
+            candleData.forEach((candle, index) => {
+                const x = padding.left + (chartWidth / candleData.length) * index + candleGap / 2;
+
+                const isGreen = candle.close >= candle.open;
+                ctx.fillStyle = isGreen ? '#10B981' : '#EF4444';
+                ctx.strokeStyle = isGreen ? '#10B981' : '#EF4444';
+
+                // Calculate Y positions
+                const openY = padding.top + ((maxPrice - candle.open) / priceRange) * chartHeight;
+                const closeY = padding.top + ((maxPrice - candle.close) / priceRange) * chartHeight;
+                const highY = padding.top + ((maxPrice - candle.high) / priceRange) * chartHeight;
+                const lowY = padding.top + ((maxPrice - candle.low) / priceRange) * chartHeight;
+
+                // Draw wick
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(x + candleWidth / 2, highY);
+                ctx.lineTo(x + candleWidth / 2, lowY);
+                ctx.stroke();
+
+                // Draw body
+                const bodyHeight = Math.max(Math.abs(closeY - openY), 1);
+                const bodyY = Math.min(openY, closeY);
+                ctx.fillRect(x, bodyY, candleWidth, bodyHeight);
+            });
+
+            // Draw RSI indicator (bottom)
+            const rsiHeight = 60;
+            const rsiY = height - padding.bottom - rsiHeight - 10;
+
+            // RSI background
+            ctx.fillStyle = '#1f2937';
+            ctx.fillRect(padding.left, rsiY, chartWidth, rsiHeight);
+
+            // RSI lines (70 and 30)
+            ctx.strokeStyle = '#374151';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+
+            // RSI 70 line
+            const rsi70Y = rsiY + rsiHeight * 0.3;
+            ctx.beginPath();
+            ctx.moveTo(padding.left, rsi70Y);
+            ctx.lineTo(width - padding.right, rsi70Y);
+            ctx.stroke();
+
+            // RSI 30 line
+            const rsi30Y = rsiY + rsiHeight * 0.7;
+            ctx.beginPath();
+            ctx.moveTo(padding.left, rsi30Y);
+            ctx.lineTo(width - padding.right, rsi30Y);
+            ctx.stroke();
+
+            ctx.setLineDash([]);
+
+            // Draw RSI line
+            ctx.strokeStyle = '#0487FF';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+
+            const rsiData = [];
+            for (let i = 0; i < candleData.length; i++) {
+                rsiData.push(30 + Math.random() * 40);
+            }
+
+            rsiData.forEach((rsi, index) => {
+                const x = padding.left + (chartWidth / rsiData.length) * index + candleGap / 2 + candleWidth / 2;
+                const y = rsiY + rsiHeight - (rsi / 100) * rsiHeight;
+
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            ctx.stroke();
+
+            // RSI label
+            ctx.fillStyle = '#9CA3AF';
+            ctx.font = '12px Pretendard';
+            ctx.textAlign = 'left';
+            ctx.fillText('RSI (14)', padding.left, rsiY - 8);
+        }
+
+        // Add interactivity to sliders
+        document.querySelectorAll('.slider').forEach(slider => {
+            slider.addEventListener('input', function() {
+                const valueDisplay = this.parentElement.parentElement.querySelector('.parameter-value');
+                const track = this.parentElement.querySelector('.slider-track');
+                const min = parseFloat(this.min);
+                const max = parseFloat(this.max);
+                const value = parseFloat(this.value);
+                const percentage = ((value - min) / (max - min)) * 100;
+
+                valueDisplay.textContent = value;
+                track.style.width = percentage + '%';
+            });
+        });
+
+        // Add hover effects to result cards
+        document.querySelectorAll('.result-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-4px)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Chart control button interactions
+        document.querySelectorAll('.chart-control-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.chart-control-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                drawChart(); // Redraw chart with new data
+            });
+        });
+
+        // Simulate progress animation
+        let progress = 67;
+        const progressFill = document.querySelector('.progress-fill');
+        const progressStatus = document.querySelector('.progress-status');
+        const progressText = document.querySelector('.progress-info span:last-child');
+        const stages = document.querySelectorAll('.progress-stage');
+
+        setInterval(() => {
+            if (progress < 100) {
+                progress += Math.random() * 2;
+                if (progress > 100) progress = 100;
+                progressFill.style.width = progress + '%';
+                progressText.textContent = Math.round(progress) + '% 완료';
+
+                // Update stages
+                if (progress >= 100) {
+                    progressStatus.textContent = '완료';
+                    progressStatus.style.background = 'rgba(4, 135, 255, 0.15)';
+                    progressStatus.style.color = '#0487FF';
+                    stages[2].classList.add('completed');
+                    stages[2].classList.remove('active');
+                    stages[1].classList.add('completed');
+                    stages[1].classList.remove('active');
+                    stages[3].classList.add('completed');
+                } else if (progress >= 75) {
+                    stages[1].classList.add('completed');
+                    stages[1].classList.remove('active');
+                    stages[2].classList.add('active');
+                }
+            }
+        }, 500);
+    </script>
+</body>
+</html>
