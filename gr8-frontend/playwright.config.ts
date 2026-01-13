@@ -33,10 +33,18 @@ export default defineConfig({
     timeout: 15 * 1000,
   },
 
+  // Automatically start dev server or preview server before tests
+  webServer: {
+    command: 'npm run preview',
+    url: 'http://localhost:4173',
+    timeout: 120 * 1000,
+    reuseExistingServer: !process.env.CI,
+  },
+
   // Test settings
   use: {
     // Base URL for tests (override with BASE_URL env var)
-    baseURL: process.env.BASE_URL || 'http://localhost:5173',
+    baseURL: process.env.BASE_URL || 'http://localhost:4173',
 
     // Capture trace on failure for debugging
     trace: 'retain-on-failure',

@@ -1,0 +1,25 @@
+# Terraform Variables Example File
+# Copy this file to terraform.tfvars and fill in your values
+# DO NOT commit terraform.tfvars to git (it contains sensitive data)
+
+# AWS Region
+aws_region  = "ap-northeast-2"
+
+# Project Configuration
+project_name = "gr8"
+environment = "production"
+
+# VPC Configuration
+vpc_cidr           = "10.0.0.0/16"
+availability_zones = ["ap-northeast-2a", "ap-northeast-2c"]
+
+# Database Configuration
+db_instance_class    = "db.t3.micro"
+db_allocated_storage = 20
+db_name              = "gr8"
+db_username          = "postgres"
+db_password          = "CHANGE_THIS_STRONG_PASSWORD_NOW"  # Change this!
+
+# ECS Configuration
+ecs_cpu    = 256   # 0.25 vCPU
+ecs_memory = 512   # 512 MB

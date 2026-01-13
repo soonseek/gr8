@@ -1,7 +1,5 @@
-"""
-Dockerfile for gr8 Backend API
-Multi-stage build for production optimization
-"""
+# Dockerfile for gr8 Backend API
+# Multi-stage build for production optimization
 
 # Use Python 3.11 slim image
 FROM python:3.11-slim

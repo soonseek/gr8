@@ -1,2 +1,14 @@
-// Hook exports
-// Custom React hooks (use prefix) will be exported from here
+/**
+ * Hooks module
+ * Exports all custom hooks
+ */
+
+// Web3 Hooks
+export {
+  useWallet,
+  useAccount,
+  useConnect,
+  useDisconnect,
+  useSwitchChain,
+} from './useWallet';
+export type { UseWalletReturnType } from './useWallet';

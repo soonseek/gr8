@@ -1,4 +1,6 @@
-function App() {
+import { Web3Debug, WalletConnectButton } from './components';
+
+export function App() {
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center">
       <div className="text-center">
@@ -9,9 +11,15 @@ function App() {
         <p className="mt-8 text-sm text-gray-500">
           Frontend starter template initialized successfully
         </p>
+
+        {/* Wallet Connect Button */}
+        <div className="mt-8 flex justify-center">
+          <WalletConnectButton />
+        </div>
       </div>
+
+      {/* Web3 Debug Component (for development) */}
+      <Web3Debug />
     </div>
   );
 }
-
-export default App;

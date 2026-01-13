@@ -1,2 +1,6 @@
-// Store exports
-// Zustand stores will be exported from here
+/**
+ * Stores module
+ * Exports all Zustand stores
+ */
+
+export { useWalletStore } from './walletStore';

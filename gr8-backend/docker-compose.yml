@@ -1,7 +1,5 @@
-"""
-Docker Compose configuration for gr8 Backend
-Includes PostgreSQL database and FastAPI application
-"""
+# Docker Compose configuration for gr8 Backend
+# Includes PostgreSQL database and FastAPI application
 
 version: "3.8"
 

@@ -1,6 +1,6 @@
 # Story 1.1: 프론트엔드 스타터 템플릿 초기화
 
-Status: in-progress
+Status: done
 
 ---
 
@@ -97,18 +97,18 @@ Status: in-progress
   - [x] Subtask 5.4: 브라우저에서 다크 테마 배경과 텍스트 확인
   - [x] Subtask 5.5: 반응형 레이아웃 확인 (모바일/데스크톱)
 
-- [ ] **Review Follow-ups (AI)** - Code Review Date: 2026-01-12
-  - [ ] [AI-Review][CRITICAL] Playwright E2E 테스트 3개 실패 수정 - vitest.config.ts에서 e2e 테스트 제외 설정 필요 [vitest.config.ts]
-  - [ ] [AI-Review][CRITICAL] ESLint 에러 9개 수정 - tests/e2e/tailwind-smoke.spec.ts (7개) 및 tests/support/fixtures/index.ts (2개) [tests/e2e/tailwind-smoke.spec.ts:130,138,160,169,173]
-  - [ ] [AI-Review][CRITICAL] Story status를 review에서 in-progress로 변경 - 테스트/린트 실패로 완료되지 않음 [1-1-frontend-starter-template.md:3]
-  - [ ] [AI-Review][HIGH] React 19 사용 결정 문서화 또는 18.3.1로 다운그레이드 - breaking changes 가능성 [package.json:20]
-  - [ ] [AI-Review][HIGH] Git에 파일 커밋 - `git add gr8-frontend/` 실행 필요 [git status]
-  - [ ] [AI-Review][HIGH] Prettier를 ESLint와 통합 - eslint.config.js에 prettier 플러그인 추가 [eslint.config.js]
-  - [ ] [AI-Review][MEDIUM] TypeScript 절대 경로(@/) alias 설정 - tsconfig.app.json에 paths 추가 [tsconfig.app.json]
-  - [ ] [AI-Review][MEDIUM] Vite 절대 경로(@/) alias 설정 - vite.config.ts에 resolve.alias 추가 [vite.config.ts]
-  - [ ] [AI-Review][MEDIUM] App.tsx를 named export로 변경 - project-context 규칙 준수 [src/App.tsx:17]
-  - [ ] [AI-Review][LOW] 테스트 커버리지 도구 설치 - Vitest coverage 플러그인 추가 [vitest.config.ts]
-  - [ ] [AI-Review][LOW] 다크모드 class 적용 - index.html에 `<html class="dark">` 또는 JS 토글 기능 추가 [index.html]
+- [x] **Review Follow-ups (AI)** - Code Review Date: 2026-01-12
+  - [x] [AI-Review][CRITICAL] Playwright E2E 테스트 3개 실패 수정 - vitest.config.ts에서 e2e 테스트 제외 설정 필요 [vitest.config.ts]
+  - [x] [AI-Review][CRITICAL] ESLint 에러 9개 수정 - tests/e2e/tailwind-smoke.spec.ts (7개) 및 tests/support/fixtures/index.ts (2개) [tests/e2e/tailwind-smoke.spec.ts:130,138,160,169,173]
+  - [x] [AI-Review][CRITICAL] Story status를 review에서 in-progress로 변경 - 테스트/린트 실패로 완료되지 않음 [1-1-frontend-starter-template.md:3]
+  - [x] [AI-Review][HIGH] React 19 사용 결정 문서화 또는 18.3.1로 다운그레이드 - breaking changes 가능성 [package.json:20]
+  - [x] [AI-Review][HIGH] Git에 파일 커밋 - `git add gr8-frontend/` 실행 필요 [git status]
+  - [x] [AI-Review][HIGH] Prettier를 ESLint와 통합 - eslint.config.js에 prettier 플러그인 추가 [eslint.config.js]
+  - [x] [AI-Review][MEDIUM] TypeScript 절대 경로(@/) alias 설정 - tsconfig.app.json에 paths 추가 [tsconfig.app.json]
+  - [x] [AI-Review][MEDIUM] Vite 절대 경로(@/) alias 설정 - vite.config.ts에 resolve.alias 추가 [vite.config.ts]
+  - [x] [AI-Review][MEDIUM] App.tsx를 named export로 변경 - project-context 규칙 준수 [src/App.tsx:17]
+  - [x] [AI-Review][LOW] 테스트 커버리지 도구 설치 - Vitest coverage 플러그인 추가 [vitest.config.ts]
+  - [x] [AI-Review][LOW] 다크모드 class 적용 - index.html에 `<html class="dark">` 또는 JS 토글 기능 추가 [index.html]
 
 ---
 

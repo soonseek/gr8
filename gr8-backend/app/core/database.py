@@ -12,9 +12,11 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import DeclarativeBase
 
-# Database URL from environment variable
+from app.core.config import settings
+
+# Database URL from settings
 # Format: postgresql+asyncpg://user:password@host:port/database
-DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/gr8"
+DATABASE_URL = settings.database_url
 
 # Create async engine with connection pooling
 engine = create_async_engine(
