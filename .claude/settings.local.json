@@ -42,7 +42,8 @@
       "Bash(./venv/Scripts/python.exe:*)",
       "Bash(terraform fmt:*)",
       "Bash(npm search:*)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(npx prettier:*)"
     ]
   }
 }

@@ -11,6 +11,8 @@ export default defineConfig({
     },
   },
   build: {
+    outDir: 'build', // Use 'build' instead of 'dist' to avoid Windows permission issues
+    emptyOutDir: true,
     rollupOptions: {
       output: {
         manualChunks: {

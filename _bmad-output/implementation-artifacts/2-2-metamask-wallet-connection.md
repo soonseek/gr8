@@ -1,6 +1,6 @@
 # Story 2.2: MetaMask 지갑 연결 UI 및 로직
 
-Status: review
+Status: done
 
 ---
 

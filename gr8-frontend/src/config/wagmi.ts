@@ -4,7 +4,7 @@
  */
 
 import { createConfig, http } from 'wagmi';
-import { injected, coinbaseWallet } from 'wagmi/connectors';
+import { injected, coinbaseWallet, walletConnect } from 'wagmi/connectors';
 
 /**
  * Monad Testnet Chain Configuration
@@ -38,6 +38,25 @@ export const monadTestnet = {
 } as const;
 
 /**
+ * WalletConnect Project ID
+ * Get your Project ID at https://cloud.walletconnect.com/
+ */
+const WC_PROJECT_ID = import.meta.env.VITE_WC_PROJECT_ID;
+
+/**
+ * App metadata for WalletConnect
+ * Used when WalletConnect is enabled
+ * Must be declared before createConfig() to avoid Temporal Dead Zone error
+ */
+export const appMetadata = {
+  name: 'gr8',
+  description: 'Decentralized automated trading platform',
+  url:
+    typeof window !== 'undefined' ? window.location.origin : 'https://gr8.baby',
+  icons: ['https://gr8.baby/logo.png'],
+};
+
+/**
  * Wagmi Config
  *
  * Configures Web3 providers with:
@@ -56,21 +75,18 @@ export const config = createConfig({
       appName: 'gr8',
       appLogoUrl: 'https://gr8.baby/logo.png',
     }),
+    // WalletConnect connector (only if project ID is configured)
+    ...(WC_PROJECT_ID && WC_PROJECT_ID !== 'your_walletconnect_project_id_here'
+      ? [
+          walletConnect({
+            projectId: WC_PROJECT_ID,
+            metadata: appMetadata,
+          }),
+        ]
+      : []),
   ],
   ssr: true, // Enable Server-Side Rendering support
   transports: {
     [monadTestnet.id]: http(),
   },
 });
-
-/**
- * App metadata for WalletConnect
- * Used when WalletConnect is enabled
- */
-export const appMetadata = {
-  name: 'gr8',
-  description: 'Decentralized automated trading platform',
-  url:
-    typeof window !== 'undefined' ? window.location.origin : 'https://gr8.baby',
-  icons: ['https://gr8.baby/logo.png'],
-} as const;

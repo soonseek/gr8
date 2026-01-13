@@ -12,3 +12,6 @@ export {
   useSwitchChain,
 } from './useWallet';
 export type { UseWalletReturnType } from './useWallet';
+
+// WalletConnect Hook
+export { useWalletConnect } from './useWalletConnect';

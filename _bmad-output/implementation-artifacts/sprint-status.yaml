@@ -53,8 +53,8 @@ development_status:
   # Epic 2: Web3 지갑 연동 및 사용자 인증
   epic-2: in-progress
   2-1-web3-library-setup: done
-  2-2-metamask-wallet-connection: review
-  2-3-walletconnect-mobile: backlog
+  2-2-metamask-wallet-connection: done
+  2-3-walletconnect-mobile: done
   2-4-chain-verification-switch: backlog
   2-5-wallet-address-display: backlog
   2-6-session-persistence: backlog

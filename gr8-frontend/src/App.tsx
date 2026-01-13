@@ -1,4 +1,4 @@
-import { Web3Debug, WalletConnectButton } from './components';
+import { Web3Debug, WalletConnectionButton } from './components';
 
 export function App() {
   return (
@@ -14,7 +14,7 @@ export function App() {
 
         {/* Wallet Connect Button */}
         <div className="mt-8 flex justify-center">
-          <WalletConnectButton />
+          <WalletConnectionButton />
         </div>
       </div>
 
