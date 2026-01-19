@@ -87,6 +87,6 @@ export const config = createConfig({
   ],
   ssr: true, // Enable Server-Side Rendering support
   transports: {
-    [monadTestnet.id]: http(),
+    [monadTestnet.id]: http('https://testnet-rpc.monad.xyz'),
   },
 });

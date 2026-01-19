@@ -93,6 +93,12 @@ workflow_status:
         command: "/bmad:bmm:workflows:implementation-readiness"
         note: "Validates PRD + Architecture + Epics + UX (optional)"
 
+      - id: "pre-implementation-check"
+        status: "optional"
+        agent: "dev"
+        command: "/bmad:bmm:workflows:pre-implementation-check"
+        note: "Optional: 3-layer validation before story development. Auto-generates gap-filler stories if needed."
+
   # Phase 4: Implementation (Required)
   - phase: 4
     name: "Implementation"

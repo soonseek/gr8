@@ -1,0 +1,154 @@
+# Pre-Implementation Check 커스텀 규칙
+# 프로젝트별로 이 파일을 수정하여 검증 항목을 커스터마이징하세요
+
+project:
+  name: gr8
+  type: web3-blockchain
+  description: "탈중앙화 자동매매 플랫폼"
+
+# Layer 1: 문서 논리 검증 커스터마이징
+layer1_checks:
+  enabled: true
+
+  # FR 커버리지 확인
+  fr_coverage:
+    enabled: true
+    require_all_frs_mapped: true
+
+  # 의존성 매핑
+  dependency_mapping:
+    enabled: true
+    epic_scope:
+      - epic-2  # Web3 Wallet
+      - epic-8  # Operations
+
+# Layer 2: 실제 구현 상태 검증 커스터마이징
+layer2_checks:
+  # 1. 데이터베이스 스키마 확인
+  - name: db_schema
+    enabled: true
+    description: "필요한 DB 테이블과 컬럼 확인"
+    tables:
+      - name: users
+        required_columns:
+          - wallet_address
+          - role  # 관리자 권한을 위해 필요
+      - name: strategies
+        required_columns:
+          - id
+          - creator_wallet
+      - name: backtests
+        required_columns:
+          - id
+          - strategy_id
+
+  # 2. Web3 블록체인 노드 확인
+  - name: blockchain_node
+    enabled: true
+    description: "Monad testnet RPC 연결 확인"
+    script: check-blockchain-node.sh
+    env_vars:
+      - RPC_URL
+    expected_chain_id: 4148  # Monad testnet
+
+  # 3. Web3 지갑 연동 확인
+  - name: wallet_integration
+    enabled: true
+    description: "Web3 지갑 라이브러리 확인"
+    checks:
+      - file_exists: "frontend/src/hooks/useWallet.ts"
+      - file_exists: "backend/app/auth/web3_auth.py"
+
+  # 4. JWT 인증 확인
+  - name: jwt_auth
+    enabled: true
+    description: "JWT 인증 미들웨어 확인"
+    checks:
+      - env_var: JWT_SECRET_KEY
+      - file_exists: "backend/app/auth/jwt.py"
+      - function_exists: "decode_jwt"
+
+  # 5. 스마트 컨트랙트 확인 (선택사항)
+  - name: smart_contracts
+    enabled: false  # MVP에서는 선택사항
+    description: "배포된 스마트 컨트랙트 확인"
+    contracts:
+      - name: StrategyNFT
+        required: false
+      - name: RevenueShare
+        required: false
+
+# Layer 3: 의존성 그래프 분석 커스터마이징
+layer3_checks:
+  enabled: true
+
+  # 순환 의존성 탐지
+  circular_dependency:
+    enabled: true
+    max_allowed_depth: 5
+    resolution_strategy: "abstraction_layer"  # or "split_story"
+
+  # 의존성 깊이 제한
+  max_dependency_depth: 3
+
+  # Fan-out 제한 (하나의 Story가 너무 많은 것에 의존하면 경고)
+  max_fan_out: 5
+
+# Story done 판정 기준 커스터마이징
+story_done_criteria:
+  required:
+    - unit_tests_pass
+    - integration_tests_pass
+    - code_reviewed
+    - deployed_to_environment
+
+  web3_specific:
+    - gas_optimization_check
+    - contract_deployment_verified
+    - testnet_fork_test_passed
+
+# Gap Story 생성 템플릿 매핑
+gap_story_templates:
+  web3_auth:
+    template: "templates/web3-auth-gap-story.md"
+    naming_pattern: "{parent_story_id}-web3-auth-{index}"
+
+  database:
+    template: "templates/database-gap-story.md"
+    naming_pattern: "{parent_story_id}-db-{index}"
+
+  api:
+    template: "templates/api-gap-story.md"
+    naming_pattern: "{parent_story_id}-api-{index}"
+
+  smart_contract:
+    template: "templates/smart-contract-gap-story.md"
+    naming_pattern: "{parent_story_id}-contract-{index}"
+
+  default:
+    template: "templates/default-gap-story.md"
+    naming_pattern: "{parent_story_id}-gap-{index}"
+
+# 자동화된 Gap 해결 전략
+gap_resolution:
+  # 누락된 기능을 자동으로 Story로 생성할지 여부
+  auto_generate_gap_stories: true
+
+  # 선행 Story가 done이 아닐 때의 처리 전략
+  prerequisite_strategy: "wait"  # or "create_parallel"
+
+  # 보완 Story의 우선순위
+  sub_story_priority: "before_parent"  # 보완 Stories를 먼저 개발
+
+# 리포트 생성 설정
+reporting:
+  output_dir: "_bmad-output/check-reports"
+  include_recommendations: true
+  include_generated_stories: true
+  format: "markdown"  # or "json", "html"
+
+# CI/CD 통합 (선택사항)
+ci_integration:
+  enabled: false
+  run_on_pr: false
+  fail_on_gaps: false  # Gap이 있어도 CI는 실패하지 않음 (경고만)

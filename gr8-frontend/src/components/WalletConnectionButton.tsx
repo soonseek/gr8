@@ -9,6 +9,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAccount } from '@/hooks';
 import { useWalletStore } from '@/stores';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { WalletSelectorModal } from './WalletSelectorModal';
 import { useConnect } from 'wagmi';
 
@@ -57,6 +58,7 @@ export function WalletConnectionButton() {
   const { address, isConnected, chainId } = useAccount();
   const { setWallet } = useWalletStore();
   const { connectors, connect } = useConnect();
+  const { isAuthenticated } = useAuthContext();
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
   const [toast, setToast] = useState<{
@@ -66,6 +68,7 @@ export function WalletConnectionButton() {
 
   // Track previous connection state to detect when user approves
   const wasConnected = useRef(false);
+  const isFirstMount = useRef(true); // 첫 마운트 확인용 ref
 
   /**
    * Handle wallet connection
@@ -177,6 +180,15 @@ export function WalletConnectionButton() {
   // Show success toast when connecting
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
+    // 첫 마운트에서는 연결 성공 메시지를 띄우지 않음 (로그아웃 후 재마운트 방지)
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      if (isConnected) {
+        wasConnected.current = true;
+      }
+      return;
+    }
+
     if (address && isConnected && !wasConnected.current) {
       setToast({
         message: '지갑이 연결되었습니다',
@@ -200,9 +212,9 @@ export function WalletConnectionButton() {
     }
   }, [address, isConnected, chainId, setWallet]);
 
-  // 연결되지 않은 상태에서만 버튼 표시
-  if (isConnected) {
-    return null; // Story 2.5에서 지갑 주소 표시
+  // 인증되지 않은 상태에서만 버튼 표시
+  if (isAuthenticated) {
+    return null; // 인증된 경우 WalletInfo가 표시됨
   }
 
   return (

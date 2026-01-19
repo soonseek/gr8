@@ -39,6 +39,18 @@ vi.mock('@/stores', () => ({
   }),
 }));
 
+// Mock AuthContext
+vi.mock('@/contexts/AuthContext', () => ({
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  useAuthContext: () => ({
+    isAuthenticated: false,
+    token: null,
+    user: null,
+    isLoading: false,
+    logout: vi.fn(),
+  }),
+}));
+
 describe('WalletConnectionButton', () => {
   it('renders "지갑 연결하기" button when wallet is not connected', () => {
     render(

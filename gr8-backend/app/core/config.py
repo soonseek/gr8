@@ -6,7 +6,7 @@ Loads settings from environment variables
 import os
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -43,6 +43,14 @@ class Settings(BaseSettings):
         default=["http://localhost:5173", "http://localhost:5174"],
         description="Allowed CORS origins",
     )
+
+    @field_validator('cors_origins', mode='before')
+    @classmethod
+    def parse_cors_origins(cls, v: str | list[str]) -> list[str]:
+        """Parse CORS origins from comma-separated string or list"""
+        if isinstance(v, str):
+            return [origin.strip() for origin in v.split(",")]
+        return v
 
     # Model Configuration
     model_config = SettingsConfigDict(
