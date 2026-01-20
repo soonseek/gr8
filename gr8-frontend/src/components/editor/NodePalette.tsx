@@ -3,66 +3,56 @@
  */
 
 import { useState } from 'react';
+import { NodeType } from '@/types/nodes';
 
-interface NodeType {
+interface PaletteNodeType {
   type: string;
   label: string;
   description: string;
   category: string;
 }
 
-const NODE_TYPES: NodeType[] = [
+const NODE_TYPES: PaletteNodeType[] = [
   // Market Data (Story 3.3)
   {
-    type: 'marketData',
+    type: NodeType.MARKET_DATA,
     label: '시장 데이터',
     description: '가격, 거래량, OHLCV 데이터',
     category: '시장 데이터',
   },
   // Technical Indicators (Story 3.4)
   {
-    type: 'sma',
-    label: 'SMA',
-    description: '단순 이동평균',
-    category: '기술적 지표',
-  },
-  {
-    type: 'ema',
-    label: 'EMA',
-    description: '지수 이동평균',
-    category: '기술적 지표',
-  },
-  {
-    type: 'rsi',
-    label: 'RSI',
-    description: '상대강도지수',
+    type: NodeType.INDICATOR,
+    label: '지표',
+    description: 'RSI, MACD, SMA, EMA 등',
     category: '기술적 지표',
   },
   // Actions (Story 3.5, 3.6)
   {
-    type: 'buy',
-    label: '매수',
-    description: '매수 주문 실행',
+    type: NodeType.ACTION,
+    label: '매수/매도',
+    description: '매수 또는 매도 주문 실행',
     category: '액션',
   },
+  // Logic (Story 3.7, 3.8)
   {
-    type: 'sell',
-    label: '매도',
-    description: '매도 주문 실행',
-    category: '액션',
-  },
-  // Logic (Story 3.7)
-  {
-    type: 'condition',
+    type: NodeType.CONDITION,
     label: '조건',
     description: 'IF/ELSE 분기',
     category: '로직',
   },
   {
-    type: 'loop',
+    type: NodeType.LOOP,
     label: '루프',
-    description: '반복 실행',
+    description: 'For/While 반복',
     category: '로직',
+  },
+  // Risk Management (Story 3.9)
+  {
+    type: NodeType.RISK_MANAGEMENT,
+    label: '리스크 관리',
+    description: 'Stop Loss/Take Profit',
+    category: '리스크 관리',
   },
 ];
 

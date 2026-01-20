@@ -6,7 +6,6 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import type {
-  Node,
   Edge,
   Connection,
   EdgeChange,
@@ -17,24 +16,31 @@ import type {
   Viewport,
 } from '@xyflow/react';
 import { applyNodeChanges, applyEdgeChanges, addEdge } from '@xyflow/react';
+import type { BaseNode } from '@/types/nodes';
+import { NodeType } from '@/types/nodes';
+import { createNode } from '@/utils/nodeFactory';
 
 /**
  * Editor State Interface
  */
 interface EditorState {
   // State
-  nodes: Node[];
+  nodes: BaseNode[];
   edges: Edge[];
   selectedNodeId: string | null;
+  selectedNodeIds: string[]; // 다중 선택을 위한 배열
   viewport: Viewport;
 
   // Actions
-  setNodes: (nodes: Node[]) => void;
+  setNodes: (nodes: BaseNode[]) => void;
   setEdges: (edges: Edge[]) => void;
-  addNode: (node: Node) => void;
+  addNode: (type: NodeType, position: { x: number; y: number }, config?: Record<string, any>) => void;
+  addNodeDirectly: (node: BaseNode) => void;
   updateNode: (id: string, data: Record<string, unknown>) => void;
   deleteNode: (id: string) => void;
+  deleteNodes: (ids: string[]) => void; // 다중 삭제
   setSelectedNodeId: (id: string | null) => void;
+  setSelectedNodeIds: (ids: string[]) => void; // 다중 선택 설정
 
   // React Flow Handlers
   onNodesChange: OnNodesChange;
@@ -51,6 +57,7 @@ export const useEditorStore = create<EditorState>()(
     nodes: [],
     edges: [],
     selectedNodeId: null,
+    selectedNodeIds: [],
     viewport: { x: 0, y: 0, zoom: 1 },
 
     // Actions
@@ -64,7 +71,13 @@ export const useEditorStore = create<EditorState>()(
         state.edges = edges;
       }),
 
-    addNode: (node) =>
+    addNode: (type, position, config) =>
+      set((state) => {
+        const newNode = createNode(type, position, config);
+        state.nodes.push(newNode);
+      }),
+
+    addNodeDirectly: (node) =>
       set((state) => {
         state.nodes.push(node);
       }),
@@ -73,7 +86,7 @@ export const useEditorStore = create<EditorState>()(
       set((state) => {
         const node = state.nodes.find((n) => n.id === id);
         if (node && typeof node.data === 'object' && node.data !== null) {
-          node.data = { ...node.data, ...data } as Record<string, unknown>;
+          Object.assign(node.data, data);
         }
       }),
 
@@ -84,15 +97,30 @@ export const useEditorStore = create<EditorState>()(
         state.edges = state.edges.filter((e) => e.source !== id && e.target !== id);
       }),
 
+    deleteNodes: (ids) =>
+      set((state) => {
+        const idSet = new Set(ids);
+        state.nodes = state.nodes.filter((n) => !idSet.has(n.id));
+        // Remove connected edges
+        state.edges = state.edges.filter((e) => !idSet.has(e.source) && !idSet.has(e.target));
+      }),
+
     setSelectedNodeId: (id) =>
       set((state) => {
         state.selectedNodeId = id;
       }),
 
+    setSelectedNodeIds: (ids) =>
+      set((state) => {
+        state.selectedNodeIds = ids;
+        // selectedNodeId도 업데이트 (단일 선택 호환)
+        state.selectedNodeId = ids.length === 1 ? ids[0] : null;
+      }),
+
     // React Flow Handlers
     onNodesChange: (changes: NodeChange[]) =>
       set((state) => {
-        state.nodes = applyNodeChanges(changes, state.nodes);
+        state.nodes = applyNodeChanges(changes, state.nodes) as BaseNode[];
       }),
 
     onEdgesChange: (changes: EdgeChange[]) =>

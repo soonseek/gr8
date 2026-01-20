@@ -34,9 +34,8 @@ import {
   Background,
   Controls,
   MiniMap,
-  type Node,
-  type Edge,
   type ReactFlowInstance,
+  type Node as ReactFlowNode,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useEditorStore } from '@/stores/editorStore';
@@ -44,6 +43,7 @@ import { Toolbar } from './Toolbar';
 import { NodePalette } from './NodePalette';
 import { PropertiesPanel } from './PropertiesPanel';
 import { StatusBar } from './StatusBar';
+import { nodeTypes } from './nodeTypes';
 
 
 /**
@@ -59,26 +59,26 @@ export function StrategyEditor() {
     onConnect,
     addNode,
     selectedNodeId,
+    selectedNodeIds,
     setSelectedNodeId,
+    setSelectedNodeIds,
     deleteNode,
+    deleteNodes,
   } = useEditorStore();
 
   const navigate = useNavigate();
-  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance<Node, Edge> | null>(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const [isMobile, setIsMobile] = useState(false);
 
   /**
-   * Handle node selection changes
+   * Handle node selection changes (supports multi-selection with Shift+click)
    */
   const onSelectionChange = useCallback(
-    ({ nodes: selectedNodes }: { nodes: Node[] }) => {
-      if (selectedNodes.length === 1) {
-        setSelectedNodeId(selectedNodes[0].id);
-      } else {
-        setSelectedNodeId(null);
-      }
+    ({ nodes: selectedNodes }: { nodes: ReactFlowNode[] }) => {
+      const selectedIds = selectedNodes.map((n) => n.id);
+      setSelectedNodeIds(selectedIds);
     },
-    [setSelectedNodeId]
+    [setSelectedNodeIds]
   );
 
   /**
@@ -105,22 +105,16 @@ export function StrategyEditor() {
         y: event.clientY,
       });
 
-      // Create new node
-      const newNode: Node = {
-        id: `${type}-${Date.now()}`,
-        type,
-        position,
-        data: { label: type },
-      };
-
-      addNode(newNode);
+      // Create new node using nodeFactory (via store)
+      const nodeType = type as any; // TypeScript workaround
+      addNode(nodeType, position);
     },
     [reactFlowInstance, addNode]
   );
 
   /**
    * Handle keyboard shortcuts
-   * - Delete/Backspace: Remove selected nodes
+   * - Delete/Backspace: Remove selected nodes (supports multi-selection)
    * - ESC: Exit to workspace
    */
   useEffect(() => {
@@ -133,10 +127,15 @@ export function StrategyEditor() {
         return;
       }
 
-      // Delete/Backspace: Remove selected nodes
-      if ((event.key === 'Delete' || event.key === 'Backspace') && selectedNodeId) {
-        deleteNode(selectedNodeId);
-        setSelectedNodeId(null);
+      // Delete/Backspace: Remove selected nodes (single or multi)
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        if (selectedNodeIds.length > 0) {
+          deleteNodes(selectedNodeIds);
+          setSelectedNodeIds([]);
+        } else if (selectedNodeId) {
+          deleteNode(selectedNodeId);
+          setSelectedNodeId(null);
+        }
       }
 
       // ESC: Exit to workspace
@@ -148,7 +147,7 @@ export function StrategyEditor() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [selectedNodeId, deleteNode, setSelectedNodeId, navigate]);
+  }, [selectedNodeId, selectedNodeIds, deleteNode, deleteNodes, setSelectedNodeId, setSelectedNodeIds, navigate]);
 
   /**
    * Detect mobile screen size
@@ -187,6 +186,7 @@ export function StrategyEditor() {
             onInit={setReactFlowInstance}
             onDrop={onDrop}
             onDragOver={onDragOver}
+            nodeTypes={nodeTypes}
             fitView
             minZoom={0.1}
             maxZoom={2}
