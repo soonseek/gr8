@@ -101,7 +101,16 @@ class TestFetchOHLCV:
             [1640998800000, "47200.00", "47800.00", "47000.00", "47500.00", "2345.67"],
         ]
 
-        with patch.object(service.exchange, 'fetch_ohlcv', return_value=mock_ohlcv_data):
+        # Mock that returns data on first call, then empty list (no more data)
+        call_count = [0]
+        def mock_fetch_ohlcv_side_effect(*args, **kwargs):
+            call_count[0] += 1
+            if call_count[0] == 1:
+                return mock_ohlcv_data
+            else:
+                return []  # No more data on subsequent calls
+
+        with patch.object(service.exchange, 'fetch_ohlcv', side_effect=mock_fetch_ohlcv_side_effect):
             start_date = datetime(2022, 1, 1)
             end_date = datetime(2022, 1, 2)
 
@@ -319,16 +328,15 @@ class TestGapDetection:
         await db_session.commit()
 
         # Detect gaps
-        gaps = await service.detect_and_fill_gaps(
+        gaps_filled = await service.detect_and_fill_gaps(
             exchange="binance",
             symbol="BTCUSDT",
             timeframe="1h",
             db=db_session
         )
 
-        # Should have no gaps
-        # Note: Implementation may return None or empty list
-        assert gaps is None or len(gaps) == 0
+        # Should have no gaps (returns int: number of gaps filled)
+        assert gaps_filled == 0
 
     @pytest.mark.asyncio
     async def test_detect_gaps_with_gaps(self, db_session: AsyncSession):
@@ -356,17 +364,19 @@ class TestGapDetection:
             db_session.add(market_data)
         await db_session.commit()
 
-        # Detect gaps
-        with patch.object(service, 'fetch_ohlcv', return_value=[]):
-            gaps = await service.detect_and_fill_gaps(
-                exchange="binance",
-                symbol="BTCUSDT",
-                timeframe="1h",
-                db=db_session
-            )
+        # Detect gaps and fill them (fetch from exchange)
+        gaps_filled = await service.detect_and_fill_gaps(
+            exchange="binance",
+            symbol="BTCUSDT",
+            timeframe="1h",
+            db=db_session
+        )
 
-        # Should detect gaps (implementation dependent)
-        # This test verifies the logic exists
+        # Should fill 2 candles (timestamps 2 and 3: missing from indices [0, 1, 5])
+        # Note: timestamp 4 is adjacent to timestamp 5, so no gap there
+        # Gap is between timestamp 1 and 5, covering timestamps 2, 3, 4
+        # But timestamp 4 + hour_in_ms = timestamp 5, so only 2 and 3 are actual gaps
+        assert gaps_filled == 2
 
 
 @pytest.mark.describe("MarketDataService - Get Last Timestamp")

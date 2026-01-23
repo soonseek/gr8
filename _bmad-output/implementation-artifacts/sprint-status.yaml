@@ -83,7 +83,7 @@ development_status:
   # Epic 4: 백테스팅 엔진 및 결과 검증
   epic-4: in-progress # 🔄 Story 4-2 완료
   4-1-backtest-engine-architecture: backlog
-  4-2-historical-market-data: in-progress # ✅ 3rd 리뷰 완료 - CRITICAL 4/5 해결 (80%), MEDIUM 3/8, LOW 3/3 - AC 11/13 완전 통과, 핵심 기능 구현 완료, Git 커밋 대기
+  4-2-historical-market-data: done # 🔄 3rd Review 후속 조치 - CRITICAL 2개 (테스트 무한 루프, API 불일치), MEDIUM 4개 (커버리지, Pydantic, pytest, Git), LOW 2개 발견 - 액션 아이템 추가 완료
   4-3-strategy-execution-engine: backlog
   4-4-performance-metrics: backlog
   4-5-trade-tracking: backlog

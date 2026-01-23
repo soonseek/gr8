@@ -4,7 +4,7 @@ Pydantic Schemas for Market Data API
 Defines request/response models for market data endpoints
 """
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from datetime import datetime
 from typing import List, Optional
 
@@ -33,8 +33,8 @@ class MarketDataBase(BaseModel):
             raise ValueError('high must be greater than or equal to low')
         return v
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "exchange": "binance",
                 "symbol": "BTCUSDT",
@@ -47,6 +47,7 @@ class MarketDataBase(BaseModel):
                 "volume": 1234.56
             }
         }
+    )
 
 
 class MarketDataResponse(BaseModel):
@@ -62,8 +63,8 @@ class MarketDataResponse(BaseModel):
     timeframe: str = Field(..., description="Timeframe")
     count: int = Field(..., description="Number of candles returned", ge=0)
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "data": [
                     {
@@ -85,6 +86,7 @@ class MarketDataResponse(BaseModel):
                 "count": 1
             }
         }
+    )
 
 
 class MarketDataFetchRequest(BaseModel):
@@ -116,8 +118,8 @@ class MarketDataFetchRequest(BaseModel):
             raise ValueError('end_date must be after start_date')
         return v
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "symbol": "BTCUSDT",
                 "timeframe": "1h",
@@ -126,6 +128,7 @@ class MarketDataFetchRequest(BaseModel):
                 "exchange": "binance"
             }
         }
+    )
 
 
 class SyncStatusResponse(BaseModel):
@@ -141,8 +144,8 @@ class SyncStatusResponse(BaseModel):
     gaps_filled: int = Field(..., description="Number of data gaps filled", ge=0)
     status: str = Field(..., description="Current sync status (idle, syncing, completed)")
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "last_sync": "2024-01-20T10:00:00Z",
                 "total_combinations": 150,
@@ -152,6 +155,7 @@ class SyncStatusResponse(BaseModel):
                 "status": "syncing"
             }
         }
+    )
 
 
 class SyncJobResponse(BaseModel):
@@ -164,11 +168,12 @@ class SyncJobResponse(BaseModel):
     job_id: str = Field(..., description="Unique job identifier for tracking")
     message: str = Field(..., description="Human-readable status message")
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "status": "syncing",
                 "job_id": "550e8400-e29b-41d4-a716-446655440000",
                 "message": "25개 조합 동기화 시작"
             }
         }
+    )

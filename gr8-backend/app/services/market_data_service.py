@@ -15,6 +15,7 @@ MVP Scope:
 """
 
 # Standard library imports
+import asyncio
 import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
@@ -196,12 +197,14 @@ class MarketDataService:
                     break  # No more data available
 
                 # Convert ccxt format (list of lists) to list of dicts
+                reached_end = False  # Flag to track if we've reached end_ts
                 for candle in ohlcv:
                     timestamp, open_price, high, low, close, volume = candle
 
                     # Skip candles outside our date range
                     if timestamp >= end_ts:
-                        break
+                        reached_end = True
+                        break  # Exit for loop
 
                     # Ensure numeric types (ccxt may return strings)
                     # Convert to float first to handle both string and numeric inputs
@@ -227,6 +230,10 @@ class MarketDataService:
                         'close': close,
                         'volume': volume,
                     })
+
+                # Exit while loop if we've reached the end timestamp
+                if reached_end:
+                    break
 
                 # Move to next batch
                 if ohlcv:
