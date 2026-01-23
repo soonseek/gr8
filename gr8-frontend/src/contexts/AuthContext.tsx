@@ -10,6 +10,8 @@ interface AuthContextType {
     role: 'user' | 'admin'
   } | null
   isLoading: boolean
+  isLoggingIn: boolean
+  login: () => Promise<void>
   logout: () => Promise<void>
 }
 

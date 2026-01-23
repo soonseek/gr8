@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sess
 from app.core.database import Base, get_db
 from main import app
 from app.models.user import User  # Import User model to ensure it's included in Base.metadata
+from app.models.market_data import MarketData  # Import MarketData model
 
 
 # Test database URL (use SQLite for faster testing)

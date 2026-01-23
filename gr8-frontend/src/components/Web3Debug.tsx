@@ -8,9 +8,9 @@
  * and should be removed or disabled in production
  */
 
-import { useWallet } from '@/hooks';
-import { useState } from 'react';
-import { ChevronUp, Bug } from 'lucide-react';
+import { useWallet, useAuth } from '@/hooks';
+import { useState, useEffect } from 'react';
+import { ChevronUp, Bug, Copy, Check, RefreshCw, AlertCircle } from 'lucide-react';
 
 /**
  * Shorten wallet address for display
@@ -19,6 +19,19 @@ import { ChevronUp, Bug } from 'lucide-react';
 function shortenAddress(address?: string): string {
   if (!address) return '';
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
+
+/**
+ * Copy text to clipboard and show feedback
+ */
+async function copyToClipboard(text: string, onCopyStart: () => void, onCopyEnd: () => void) {
+  try {
+    await navigator.clipboard.writeText(text);
+    onCopyStart();
+    setTimeout(onCopyEnd, 2000); // Reset after 2 seconds
+  } catch (error) {
+    console.error('Failed to copy:', error);
+  }
 }
 
 /**
@@ -39,8 +52,49 @@ function shortenAddress(address?: string): string {
  */
 export function Web3Debug() {
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [copiedToken, setCopiedToken] = useState(false);
+  const [tokenStatus, setTokenStatus] = useState<'valid' | 'expired' | 'unknown'>('unknown');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   const { address, chainId, isConnected, isConnecting, connector } =
     useWallet();
+  const { token, logout } = useAuth();
+
+  // Check token status when component mounts or token changes
+  useEffect(() => {
+    if (!token) {
+      setTokenStatus('unknown');
+      return;
+    }
+
+    try {
+      // Decode JWT to check expiration
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const exp = payload.exp;
+      const now = Math.floor(Date.now() / 1000);
+
+      if (exp < now) {
+        setTokenStatus('expired');
+      } else {
+        setTokenStatus('valid');
+      }
+    } catch (error) {
+      setTokenStatus('unknown');
+    }
+  }, [token]);
+
+  // Handle token refresh (logout to trigger re-login)
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await logout();
+      // Force page reload to trigger fresh login
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to refresh token:', error);
+      setIsRefreshing(false);
+    }
+  };
 
   return (
     <div className="fixed top-4 right-4 z-50 font-mono text-sm">
@@ -120,6 +174,91 @@ export function Web3Debug() {
         <div className="mt-3 pt-3 border-t border-gray-600">
           <div className="text-gray-400 text-xs mb-1">Full Address:</div>
           <div className="text-white text-xs break-all">{address}</div>
+        </div>
+      )}
+
+      {/* Bearer Token (copyable) */}
+      {token && (
+        <div className="mt-3 pt-3 border-t border-gray-600">
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-2">
+              <div className="text-gray-400 text-xs">Bearer Token:</div>
+              {/* Token Status Badge */}
+              {tokenStatus === 'valid' && (
+                <span className="text-xs bg-green-600 text-white px-2 py-0.5 rounded">
+                  유효함
+                </span>
+              )}
+              {tokenStatus === 'expired' && (
+                <span className="text-xs bg-red-600 text-white px-2 py-0.5 rounded flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  만료됨
+                </span>
+              )}
+              {tokenStatus === 'unknown' && (
+                <span className="text-xs bg-yellow-600 text-white px-2 py-0.5 rounded">
+                  확인 불가
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {/* Refresh Button */}
+              <button
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1 text-xs disabled:opacity-50"
+                title={tokenStatus === 'expired' ? "토큰 재발급 (재로그인)" : "토큰 갱신"}
+              >
+                <RefreshCw className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+                {isRefreshing ? '갱신 중...' : '갱신'}
+              </button>
+              {/* Copy Button */}
+              <button
+                onClick={() => copyToClipboard(token, () => setCopiedToken(true), () => setCopiedToken(false))}
+                className="text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1 text-xs"
+                title="클립보드에 복사"
+              >
+                {copiedToken ? (
+                  <>
+                    <Check className="w-3 h-3" />
+                    복사됨
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3 h-3" />
+                    복사
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+          <div className="bg-gray-900 p-2 rounded border border-gray-700 max-h-20 overflow-y-auto">
+            <code className="text-green-400 text-xs break-all block">{token}</code>
+          </div>
+          <div className="text-gray-500 text-xs mt-1">
+            💡 Swagger에서 <code className="text-gray-400">Authorization: Bearer &lt;token&gt;</code>으로 사용
+          </div>
+          {/* Expired Warning */}
+          {tokenStatus === 'expired' && (
+            <div className="mt-2 p-2 bg-red-900/30 border border-red-700 rounded">
+              <div className="text-red-400 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4" />
+                <span>토큰이 만료되었습니다. '갱신' 버튼을 클릭하여 재로그인하세요.</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Logout Button (if logged in) */}
+      {isConnected && token && (
+        <div className="mt-3 pt-3 border-t border-gray-600">
+          <button
+            onClick={logout}
+            className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium"
+          >
+            로그아웃
+          </button>
         </div>
       )}
 

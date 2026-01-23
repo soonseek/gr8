@@ -17,8 +17,20 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 // Public Route: 인증되지 않은 사용자만 접근 가능
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuthContext();
-  return isAuthenticated ? <Navigate to="/workspace" replace /> : <>{children}</>;
+  const { isAuthenticated, isLoading } = useAuthContext();
+
+  // 로딩 중이면 아무것도 렌더링하지 않음
+  if (isLoading) {
+    return null;
+  }
+
+  // 인증되어 있으면 workspace로 리다이렉트
+  if (isAuthenticated) {
+    return <Navigate to="/workspace" replace />;
+  }
+
+  // 인증되어 있지 않으면 children 렌더링
+  return <>{children}</>;
 }
 
 // Placeholder pages for future stories

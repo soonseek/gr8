@@ -14,12 +14,13 @@ from app.auth.jwt import decode_jwt
 
 logger = logging.getLogger(__name__)
 
-security = HTTPBearer()
+# HTTPBearer with auto_error=False for better Swagger integration
+security = HTTPBearer(auto_error=False)
 
 
 async def verify_admin_token(
     request: Request,
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: AsyncSession = Depends(get_db)
 ) -> User:
     """
@@ -27,7 +28,7 @@ async def verify_admin_token(
 
     Args:
         request: FastAPI Request 객체
-        credentials: HTTP Bearer 토큰
+        credentials: HTTP Bearer credentials (optional for Swagger)
         db: 데이터베이스 세션
 
     Returns:
@@ -37,7 +38,16 @@ async def verify_admin_token(
         HTTPException 401: 토큰이 없거나 무효한 경우
         HTTPException 403: 운영자 권한이 없는 경우 또는 차단된 사용자인 경우
     """
-    # 1. JWT 토큰 디코딩
+    # 1. Check if credentials provided
+    if not credentials:
+        logger.warning("No authorization credentials provided")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="인증이 필요합니다",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # 2. JWT 토큰 디코딩
     token = credentials.credentials
     payload = decode_jwt(token)
 

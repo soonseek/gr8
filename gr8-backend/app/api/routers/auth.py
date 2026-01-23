@@ -1,6 +1,8 @@
 """Authentication router for Web3 wallet-based login."""
 
+import logging
 from fastapi import APIRouter, Depends, HTTPException, status, Header
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,7 +12,11 @@ from app.auth.jwt import create_access_token, verify_token, decode_jwt
 from app.auth.web3_auth import verify_web3_signature
 from app.models.user import User
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
+
+# HTTP Bearer security scheme for Swagger UI
+security = HTTPBearer(auto_error=False)
 
 
 class LoginRequest(BaseModel):
@@ -74,6 +80,9 @@ async def login(
     Raises:
         HTTPException 401: If signature verification fails
     """
+    # Log login attempt
+    logger.info(f"Login attempt from wallet: {request.wallet_address}")
+
     # Verify Web3 signature
     is_valid = verify_web3_signature(
         message=request.message,
@@ -82,10 +91,17 @@ async def login(
     )
 
     if not is_valid:
+        logger.warning(
+            f"Signature verification failed for wallet: {request.wallet_address}\n"
+            f"Message: {request.message}\n"
+            f"Signature: {request.signature[:10]}..."
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid signature or wallet address"
         )
+
+    logger.info(f"Signature verified successfully for wallet: {request.wallet_address}")
 
     # Check if user exists, create if not
     from sqlalchemy import select, func
@@ -148,16 +164,16 @@ async def login(
 
 @router.get("/me", response_model=UserResponse, status_code=status.HTTP_200_OK)
 async def get_current_user(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: AsyncSession = Depends(get_db),
-    authorization: Optional[str] = Header(None)
 ):
     """Get current authenticated user information.
 
     Requires valid JWT token in Authorization header.
 
     Args:
+        credentials: HTTP Bearer credentials (auto-injected by FastAPI Security)
         db: Database session
-        authorization: Authorization header with Bearer token
 
     Returns:
         UserResponse: Current user's wallet address and role
@@ -166,20 +182,14 @@ async def get_current_user(
         HTTPException 401: If token is missing or invalid
         HTTPException 403: If user is banned
     """
-    if not authorization:
+    if not credentials:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authorization header required"
+            detail="Authorization header required",
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Extract token from "Bearer <token>"
-    try:
-        token = authorization.split(" ")[1]
-    except IndexError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authorization header format"
-        )
+    token = credentials.credentials
 
     # Verify token and get wallet address
     wallet_address = verify_token(token)

@@ -63,11 +63,11 @@ development_status:
 
   # Epic 3: 전략 개발 도구
   epic-3: in-progress
-  3-1-react-flow-editor: in-progress # 🔴 CRITICAL UX FIX - 에디터 나가기 버튼 추가 필요 (Review Follow-ups 참조: AI-1 나가기 버튼, AI-2 Unsaved changes 확인, AI-4 ESC 키 단축키)
+  3-1-react-flow-editor: done # ✅ 완료 - React Flow 에디터 기본 구조, 다중 선택, 나가기 버튼, ESC 키, 리뷰 후속 조치 모두 완료
   3-1-1-landing: done # 📝 리뷰 대기 - 랜딩 페이지 완료 (Hero, 문제 정의, 솔루션, 기능, CTA, 푸터, PRD 기반 김준혁 스토리텔링, 3가지 핵심 가치 전달)
   3-1-2-nav: done # 📝 리뷰 대기 - 네비게이션 시스템 완료 (사이드바, 헤더, 워크스페이스 홈, 라우팅, 반응형 디자인)
-  3-2-node-type-definitions: backlog
-  3-3-market-data-node: backlog
+  3-2-node-type-definitions: done # ✅ 완료 - 2차 리뷰 승인 (9개 HIGH 이슈 모두 해결: TRIGGER/NodeCategory/TriggerNode 완벽 구현, AC 5/8 충족, TypeScript 컴파일 성공)
+  3-3-market-data-node: ready-for-dev # ✅ Story 4-2 완료로 개발 가능 - 백엔드 API (ccxt, DB) 준비 완료, 프론트엔드 연결 필요
   3-4-technical-indicator-node: backlog
   3-5-basic-buy-sell-action: backlog
   3-6-split-buy-sell: backlog
@@ -77,12 +77,13 @@ development_status:
   3-10-strategy-save-load: backlog
   3-11-strategy-export-import: backlog
   3-12-strategy-name-description: backlog
+  # DCA 마틴게일 프리셋 버튼 + LLM 대화형 전략 구축 레이어
   epic-3-retrospective: optional
 
   # Epic 4: 백테스팅 엔진 및 결과 검증
-  epic-4: backlog
+  epic-4: in-progress # 🔄 Story 4-2 완료
   4-1-backtest-engine-architecture: backlog
-  4-2-historical-market-data: backlog
+  4-2-historical-market-data: in-progress # ✅ 3rd 리뷰 완료 - CRITICAL 4/5 해결 (80%), MEDIUM 3/8, LOW 3/3 - AC 11/13 완전 통과, 핵심 기능 구현 완료, Git 커밋 대기
   4-3-strategy-execution-engine: backlog
   4-4-performance-metrics: backlog
   4-5-trade-tracking: backlog

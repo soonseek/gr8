@@ -69,7 +69,14 @@
       "Bash(pytest:*)",
       "Bash(pip install:*)",
       "SlashCommand(/bmad:bmm:workflows:create-story 3-1)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npx vite build)",
+      "Bash(ls:*)",
+      "SlashCommand(/bmad:core:workflows:party-mode 현재 노드 에디터 구성(노드, 엣지, 속성 패널)이 자동화 전략 설계에 적합한지 검토하고, 프리셋 시스템 도입 방안 논의\n\n프로젝트: gr8 (탈중앙화 자동 거래 플랫폼)\n컨텍스트: React Flow 기반 노드 에디터 구현 완료 후 프리셋 시스템 도입 검토\n\n토의 주제:\n1. 현재 노드/엣지/속성 패널 구조가 전략 자동화에 적합한지 분석\n2. 프리셋 시스템 아키텍처: 좌측 팔레트에 프리셋 영역 추가 방안\n3. 순환 매매 DCA 봇: 원클릭 프리셋으로 구현 가능성 확인\n4. RSI 30-70 시그널 봇: 원클릭 프리셋으로 구현 가능성 확인\n5. 프리셋과 커스텀 전략의 관계 설계\n6. 현재 구조의 제약사항과 개선 방향\n\n목표: 두 가지 프리셋(RSI 시그널 봇, 순환매 마틴게일 5단 DCA 봇)을 버튼 하나로 생성할 수 있는 아키텍처 방안 도출\n\n참고: 이번 논의는 직접 구현이 아니라 향후 스토리 생성을 위한 요구사항 및 아키텍처 정의가 목적)",
+      "Bash(curl:*)",
+      "Bash(taskkill:*)",
+      "Bash(netstat:*)",
+      "Bash(../venv/Scripts/python.exe -m pytest:*)"
     ]
   }
 }

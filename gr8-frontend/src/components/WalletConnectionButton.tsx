@@ -9,7 +9,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAccount } from '@/hooks';
 import { useWalletStore } from '@/stores';
-import { useAuthContext } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { WalletSelectorModal } from './WalletSelectorModal';
 import { useConnect } from 'wagmi';
 
@@ -58,7 +58,7 @@ export function WalletConnectionButton() {
   const { address, isConnected, chainId } = useAccount();
   const { setWallet } = useWalletStore();
   const { connectors, connect } = useConnect();
-  const { isAuthenticated } = useAuthContext();
+  const { login, isAuthenticated, isLoggingIn } = useAuth();
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
   const [toast, setToast] = useState<{
@@ -67,13 +67,27 @@ export function WalletConnectionButton() {
   } | null>(null);
 
   // Track previous connection state to detect when user approves
-  const wasConnected = useRef(false);
-  const isFirstMount = useRef(true); // 첫 마운트 확인용 ref
+  const wasConnected = useRef(false); // 초기값을 false로 설정
+  const isManualConnection = useRef(false); // 사용자가 명시적으로 연결 버튼을 눌렀는지 추적
 
   /**
    * Handle wallet connection
    */
-  const handleConnect = () => {
+  const handleConnect = async () => {
+    isManualConnection.current = true;
+
+    // If already connected, directly try login
+    if (isConnected && address) {
+      console.log('Already connected, attempting login...');
+      try {
+        await login();
+      } catch (error) {
+        console.error('Login failed:', error);
+      }
+      return;
+    }
+
+    // Otherwise show wallet selector
     setShowWalletSelector(true);
     setToast(null);
   };
@@ -177,33 +191,33 @@ export function WalletConnectionButton() {
     }
   };
 
-  // Show success toast when connecting
-  /* eslint-disable react-hooks/set-state-in-effect */
+  // Auto-login after manual wallet connection
   useEffect(() => {
-    // 첫 마운트에서는 연결 성공 메시지를 띄우지 않음 (로그아웃 후 재마운트 방지)
-    if (isFirstMount.current) {
-      isFirstMount.current = false;
-      if (isConnected) {
-        wasConnected.current = true;
-      }
-      return;
-    }
+    // Only trigger login if user manually clicked connect button
+    if (!isManualConnection.current) return;
 
+    // If wallet was just connected (state changed from false to true)
     if (address && isConnected && !wasConnected.current) {
-      setToast({
-        message: '지갑이 연결되었습니다',
-        type: 'success',
+      // Auto-login with signature
+      console.log('Wallet connected, auto-login...');
+      login().catch((error) => {
+        console.error('Auto-login after connection failed:', error);
       });
-      setTimeout(() => setToast(null), 3000);
       wasConnected.current = true;
+      isManualConnection.current = false;
     }
 
     // Reset when disconnected
     if (!isConnected) {
       wasConnected.current = false;
+      isManualConnection.current = false;
     }
-  }, [address, isConnected]);
-  /* eslint-enable react-hooks/set-state-in-effect */
+  }, [address, isConnected, login]);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('Connection state:', { isConnected, address, isManualConnection: isManualConnection.current, wasConnected: wasConnected.current });
+  }, [isConnected, address]);
 
   // 연결 상태가 변경되면 store 업데이트
   useEffect(() => {
@@ -212,25 +226,29 @@ export function WalletConnectionButton() {
     }
   }, [address, isConnected, chainId, setWallet]);
 
-  // 인증되지 않은 상태에서만 버튼 표시
+  // 인증된 경우 버튼 표시 안 함 (WalletInfo가 표시됨)
   if (isAuthenticated) {
-    return null; // 인증된 경우 WalletInfo가 표시됨
+    return null;
   }
+
+  // Show connecting/loading state during login
+  const isConnecting = !isAuthenticated && isConnected && isManualConnection.current;
 
   return (
     <>
       {/* Toast Message */}
       {toast && <Toast message={toast.message} type={toast.type} />}
 
-      {/* Connect Button */}
+      {/* Single button for both connection and login */}
       <button
         onClick={handleConnect}
+        disabled={isConnecting || isLoggingIn}
         className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg
                    w-full sm:w-auto min-h-[44px] min-w-[44px]
                    transition-colors duration-200
                    disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        지갑 연결하기
+        {isConnecting ? '지갑 연결 중...' : isLoggingIn ? '서명 요청 중...' : '지갑 연결하기'}
       </button>
 
       {/* Wallet Selector Modal */}

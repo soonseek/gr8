@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useSignMessage, useAccount, useDisconnect } from 'wagmi'
 import toast from 'react-hot-toast'
 
@@ -45,6 +46,7 @@ function getErrorMessage(error: unknown): string {
 }
 
 export function useAuth() {
+  const navigate = useNavigate()
   const { address, isConnected } = useAccount()
   const { signMessageAsync } = useSignMessage()
   const { disconnect } = useDisconnect()
@@ -56,14 +58,18 @@ export function useAuth() {
   })
 
   const [isLoading, setIsLoading] = useState(true)
-  const [loginAttempted, setLoginAttempted] = useState(false)
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
   const loginInProgressRef = useRef(false)
-  const isLoggingOutRef = useRef(false) // 로그아웃 중인지 확인하는 플래그
+  const isLoggingOutRef = useRef(false)
 
   // Load user data from localStorage on mount
   useEffect(() => {
+    const token = localStorage.getItem('access_token')
     const userStr = localStorage.getItem('user')
-    if (userStr) {
+
+    console.log('useAuth init:', { hasToken: !!token, hasUser: !!userStr, userStr })
+
+    if (token && userStr) {
       try {
         const rawData = JSON.parse(userStr)
 
@@ -73,8 +79,11 @@ export function useAuth() {
           role: rawData.role
         }
 
+        console.log('Setting authenticated state:', userData)
+
         setAuthState((prev) => ({
           ...prev,
+          token: token,
           user: userData,
           isAuthenticated: true
         }))
@@ -87,37 +96,33 @@ export function useAuth() {
     setIsLoading(false)
   }, [])
 
-  // Auto-login when wallet connects
+  // Reset login in progress flag when disconnected
   useEffect(() => {
-    const hasToken = !!localStorage.getItem('access_token')
+    if (!isConnected) {
+      loginInProgressRef.current = false
+      isLoggingOutRef.current = false
+    }
+  }, [isConnected])
 
-    // 로그아웃 중이면 자동 로그인 시도하지 않음
-    if (isLoggingOutRef.current) {
+  const login = useCallback(async () => {
+    if (!address) {
+      toast.error('지갑이 연결되지 않았습니다.')
       return
     }
-
-    if (isConnected && address && !hasToken && !isLoading && !loginAttempted && !loginInProgressRef.current) {
-      setLoginAttempted(true)
-      loginInProgressRef.current = true
-      handleAutoLogin()
-    }
-
-    // Reset loginAttempted when disconnected
-    if (!isConnected) {
-      setLoginAttempted(false)
-      loginInProgressRef.current = false
-      isLoggingOutRef.current = false // 로그아웃 플래그 초기화
-    }
-  }, [isConnected, address, isLoading, loginAttempted])
-
-  const handleAutoLogin = async () => {
-    if (!address) return
 
     // 로그아웃 중이면 로그인 시도 중단
     if (isLoggingOutRef.current) {
       loginInProgressRef.current = false
       return
     }
+
+    // 이미 로그인 진행 중이면 중복 실행 방지
+    if (loginInProgressRef.current || isLoggingIn) {
+      return
+    }
+
+    loginInProgressRef.current = true
+    setIsLoggingIn(true)
 
     try {
       // 1. Create signature
@@ -166,8 +171,12 @@ export function useAuth() {
         user: userData
       })
       loginInProgressRef.current = false
+      setIsLoggingIn(false)
+
+      // 7. Force page reload to ensure authentication state is reflected across all components
+      window.location.href = '/workspace'
     } catch (error) {
-      console.error('Auto login failed:', error)
+      console.error('Login failed:', error)
 
       // Show error message to user (with i18n support)
       const errorMessage = getErrorMessage(error)
@@ -179,10 +188,11 @@ export function useAuth() {
         token: null,
         user: null
       })
-      setLoginAttempted(false)
       loginInProgressRef.current = false
+      setIsLoggingIn(false)
+      throw error // Re-throw to allow caller to handle
     }
-  }
+  }, [address, signMessageAsync, isLoggingIn])
 
   const logout = useCallback(async () => {
     // 1. Set logout flag to prevent auto-login attempts
@@ -192,7 +202,7 @@ export function useAuth() {
     localStorage.removeItem('access_token')
     localStorage.removeItem('user')
 
-    // 3. Clear state immediately (this will trigger UI update)
+    // 3. Clear state immediately
     setAuthState({
       isAuthenticated: false,
       token: null,
@@ -200,8 +210,8 @@ export function useAuth() {
     })
 
     // 4. Reset login attempt flags
-    setLoginAttempted(false)
     loginInProgressRef.current = false
+    setIsLoggingIn(false)
 
     // 5. Disconnect wallet (async, but UI already updated)
     try {
@@ -209,11 +219,16 @@ export function useAuth() {
     } catch (error) {
       console.error('Disconnect failed:', error)
     }
+
+    // 6. Force page reload to ensure logout state is reflected
+    window.location.href = '/'
   }, [disconnect])
 
   return {
     ...authState,
     isLoading,
+    isLoggingIn,
+    login,
     logout
   }
 }
