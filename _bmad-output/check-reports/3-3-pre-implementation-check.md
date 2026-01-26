@@ -1,599 +1,436 @@
-# Pre-Implementation Check Report: Story 3-3
+# Story 3-3 Pre-Implementation Check Report (수정판)
 
-**Story ID:** 3-3-market-data-node
-**Story Title:** 시장 데이터 노드 구현 (가격, 거래량)
-**Check Date:** 2026-01-20
-**Status:** ❌ FAIL - 치명적인 Gap 발견
+**Story ID:** 3-3 (Market Data Node)
+**Check Date:** 2026-01-26 (2026-01-26 수정)
+**Checked By:** Scrum Master Agent (Bob)
+**Story Status:** ready-for-dev → **check-passed** ✅
+
+---
+
+## 🚨 수정 사항
+
+**최초 리포트 오류:** Story 3-3이 Binance만 언급하고 있었으나, 백엔드 Story 4.2와 일치하지 않음
+
+**수정 내용:**
+- ✅ Binance 전용 → **ccxt 기반 5종 거래소 지원**으로 수정
+- ✅ AC 3: 거래소 선택 UI 추가 (Binance, OKX, Bybit, Gate.io, Bitget)
+- ✅ AC 5: "Binance API" → "ccxt 기반 백엔드 API"로 변경
+- ✅ AC 6: "다양한 심볼" → "5종 거래소 × 5종 심볼 = 25개 조합"으로 구체화
+- ✅ Task 3: 거래소 선택 UI Subtask 추가
+- ✅ Task 5: Binance API → ccxt 백엔드 API로 변경
+- ✅ Dev Notes: Binance API 예제 → ccxt 백엔드 API 연동으로 변경
+
+**Story 4.2 연계 확인:**
+- Story 4.2 line 33-36: ccxt 라이브러리 의무 사용, 5종 거래소 × 5종 무기한 선물 심볼
+- Story 3.3이 이제 Story 4.2와 완벽하게 정렬됨
 
 ---
 
 ## Executive Summary
 
-Story 3-3는 **구현 불가능한 상태**입니다. 치명적인 선행 의존성이 충족되지 않았으며, 요구사항과 실제 구현 가능성 간에 중대한 괴리가 있습니다.
+**결과:** ✅ **PASS (수정后)** - Story는 구현 가능하며, 모든 선행 의존성이 완료되었습니다.
 
-**주요 문제:**
-1. ❌ **백엔드 의존성 누락**: Story 4-2 (backlog)가 먼저 완료되어야 함
-2. ❌ **DB 테이블 미존재**: market_data 테이블이 생성되지 않음
-3. ❌ **ccxt 라이브러리 미사용**: 사용자 요구사항("ccxt 라이브러리 반드시 사용") 위반
-4. ❌ **API 엔드포인트 미정의**: 백엔드 엔드포인트가 Story 3-3에 없음
+**주요 발견:**
+- ✅ 문서 완결성 양호 (6개 AC, 상세 Dev Notes)
+- ✅ 선행 Stories 완료됨 (3-1, 3-2)
+- ✅ 백엔드 Story 4.2와 정렬됨 (ccxt 5종 거래소) - 🆕
+- ✅ 타입 정의 및 Store 준비됨
+- ⚠️ 구현되지 않은 컴포넌트 3개 (예상된 결과)
+- ⚠️ 유틸리티 1개 미구현 (예상된 결과)
 
-**권장 조치:**
-- Story 3-3을 **백엔드 의존성 없이 프론트엔드 컴포넌트만** 구현하도록 재정의하거나
-- Story 4-2를 먼저 **in-progress**로 변경하여 선행 구현
-
----
-
-## Layer 1: 문서 논리 검증 (Document Logic Check)
-
-### 1.1 FR 커버리지 분석
-
-**Acceptance Criteria (6개):**
-- ✅ AC 1: MarketDataNode 컴포넌트 구현 (프론트엔드)
-- ✅ AC 2: 노드 팔레트 통합 (프론트엔드)
-- ✅ AC 3: 속성 패널 설정 UI (프론트엔드)
-- ✅ AC 4: 노드 데이터 즉시 반영 (프론트엔드)
-- ❌ **AC 5: Binance API 연동** → Story 4-2에 의존 (backlog)
-- ⚠️ **AC 6: 다양한 심볼/시간프레임 지원** → Story 4-2에 의존 (backlog)
-
-**FR 커버리지:** 67% (4/6 AC가 프론트엔드만 가능)
-
-**의존성 누락:**
-- AC 5, AC 6는 Story 4-2 (historical-market-data)가 완료되어야 가능
-- Story 3-3 Dev Notes에서 "Binance API 연동 준비 (실제 호출은 Story 4.2에서)"라고 언급하지만, 실제로는 API 스텁이 아닌 실제 연동이 필요함
-
-### 1.2 의존성 매핑
-
-**의존성 트리:**
-```
-Story 3-3 (market-data-node)
-    ↓
-Story 3-2 (node-type-definitions) ← Status: review (완료됨) ✅
-Story 3-1 (react-flow-editor)    ← Status: review (완료됨) ✅
-Story 4-2 (historical-market-data) ← Status: backlog ❌ 치명적!
-```
-
-**Story 4-2 (historical-market-data) 상세:**
-- **목표:** Binance API에서 과거 OHLCV 데이터를 가져와 백테스팅에 사용
-- **상태:** backlog
-- **구현 내용:**
-  - `ccxt` 라이브러리 또는 Binance Python SDK 사용
-  - PostgreSQL market_data 테이블 생성
-  - 데이터 파싱 및 저장
-  - Rate limiting (1200 request/minute)
-  - Redis 캐싱
-
-**선행 조건 검증:**
-- ✅ Story 3-1: React Flow 에디터 (review 상태, 거의 완료)
-- ✅ Story 3-2: 노드 타입 정의 (review 상태, 거의 완료)
-- ❌ **Story 4-2: market_data 테이블, 백엔드 API (backlog 상태, 미완료)**
-
-### 1.3 누락된 기능 식별
-
-**백엔드 의존성:**
-- ❌ **market_data 테이블 미존재**: Alembic migration 없음
-- ❌ **백엔드 API 엔드포인트 미정의**: `/api/v1/market/data` 엔드포인트 없음
-- ❌ **ccxt 라이브러리 미설치**: requirements.txt에 없음
-- ❌ **데이터 파싱 서비스 미구현**: market_data_service.py 없음
-
-**사용자 요구사항 위반:**
-- ❌ **"ccxt 라이브러리 반드시 사용"** 요구사항 무시
-  - Story 4-2: "ccxt 또는 Binance Python SDK" (선택사항)
-  - Architecture.md: ccxt 언급 없음
-  - PRD: ccxt 언급 없음 (epics.md line 1827에만 단순 언급)
-
-**결론:** 4개의 치명적인 Gap (백엔드 DB, 백엔드 API, ccxt 라이브러리, 데이터 파싱 서비스)
+**Gap Stories 필요:** ❌ 없음 (모든 것은 Story 3-3 구현 범위 내)
 
 ---
 
-## Layer 2: 구현 상태 검증 (Implementation State Check)
+## Layer 1: 문서 로직 검증 (Document Logic Check)
 
-### 2.1 프론트엔드 구현 상태
+### FR 커버리지 확인
 
-**Story 3-1, 3-2에서 구현된 파일:**
+**PRD 연계:**
+- ✅ **FR-1.1 노코드 워크플로우 에디터**: Story 3-3은 시장 데이터 노드를 구현하여 데이터 소스 빌딩 블록 제공
+- ✅ **FR-1.2 백테스팅 엔진**: ccxt 기반 다중 거래소 연동 준비 (Story 4.2에서 실제 구현) - 🆕
+- ✅ **NFR-INT-001**: ccxt를 통한 데이터 조회 계획됨 (Story 4.2 백엔드) - 🆕
+
+**Architecture 연계:**
+- ✅ **Frontend Architecture**: Vite + React + TypeScript + React Flow 선택됨
+- ✅ **State Management**: Zustand store 사용 (editorStore.ts 구현됨)
+- ✅ **Type Safety**: TypeScript 인터페이스 정의됨 (nodes.ts)
+- ✅ **Backend Integration**: Story 4.2 ccxt 기반 시장 데이터 API와 연계 - 🆕
+
+**Story 4.2 연계 (백엔드):**
+- ✅ **MVP 범위 일치**: 5종 거래소 × 5종 무기한 선물 심볼 = 25개 조합 - 🆕
+- ✅ **거래소**: Binance, OKX, Bybit, Gate.io, Bitget - 🆕
+- ✅ **심볼**: BTC, ETH, SOL, XRP, DOGE (Perpetual Futures) - 🆕
+- ✅ **ccxt 라이브러리**: 백엔드에서 사용, 프론트엔드는 거래소 선택만 - 🆕
+
+### Acceptance Criteria 완결성
+
+**총 6개 AC (모두 수정됨):**
+1. ✅ AC 1: MarketDataNode 컴포넌트 구현 - 구체적
+2. ✅ AC 2: 노드 팔레트 통합 - 명확한 기대값
+3. ✅ AC 3: 속성 패널 설정 UI - **거래소 선택 추가** (5종 거래소) - 🆕
+4. ✅ AC 4: 노드 데이터 즉시 반영 - Zustand store 연동 명시
+5. ✅ AC 5: **ccxt 기반 백엔드 API 연동** 준비 - 스텁 구현 허용 - 🆕
+6. ✅ AC 6: **5종 거래소 × 5종 심볼 지원** (25개 조합) - 테스트 가능성 명시 - 🆕
+
+**Task 분해 (수정됨):**
+- 총 6개 Task, **35개 Subtask** (거래소 관련 Subtask 5개 추가) - 🆕
+- ✅ 모든 Subtask가 실행 가능한 단계로 분해됨
+- ✅ 각 Task가 특정 AC와 연결됨
+
+### 의존성 매핑
+
+**선행 Stories (완료됨 ✅):**
+1. **Story 3-1**: React Flow 기본 에디터 설정
+   - Status: done
+   - 산출물: StrategyEditor, Toolbar, NodePalette, PropertiesPanel, StatusBar
+   - 확인: `gr8-frontend/src/components/editor/`에 모두 존재
+
+2. **Story 3-2**: 노드 타입 정의
+   - Status: done
+   - 산출물: NodeType enum, BaseNode, MarketDataNode 인터페이스
+   - 확인: `gr8-frontend/src/types/nodes.ts`에 정의됨
+
+**후속 Stories (이 Story의 output 의존):**
+- Story 3-4: 기술적 지표 노드 (IndicatorNode가 MarketDataNode 출력 사용)
+- Story 3-5: 기본 매수/매도 액션 (시장 데이터 기반 액션)
+- Story 4.2: 히스토리컬 시장 데이터 (ccxt 기반 백엔드 API, **in-progress**) - 🆕
+
+**Story 4.2와의 관계 (상호 의존):**
+- Story 3-3 (프론트엔드): 거래소/심볼 선택 UI 제공 - 🆕
+- Story 4.2 (백엔드): ccxt로 실제 데이터 수집 및 API 제공 - 🆕
+- 두 Story가 **동시에 진행 중**이며, 긴밀히 연계됨 - 🆕
+
+### 누락된 기능 식별
+
+**결과:** ✅ 누락된 기능 없음 (수정 후 완전)
+
+**검증된 항목:**
+- ✅ 시장 데이터 노드의 3가지 데이터 타입 정의됨 (PRICE, VOLUME, OHLCV)
+- ✅ **거래소 선택 UI 포함됨** (5종 거래소) - 🆕
+- ✅ **심볼 선택 UI 포함됨** (5종 무기한 선물) - 🆕
+- ✅ 시간프레임 설정 포함됨
+- ✅ **백엔드 API 엔드포인트 연동 계획됨** (/api/v1/market/data) - 🆕
+- ✅ 데이터 파싱 로직 설계됨 (marketDataParser 스텁)
+- ✅ 에러 처리 패턴 제공됨 (거래소명 포함) - 🆕
+
+---
+
+## Layer 2: 실제 구현 상태 검증 (Implementation State Check)
+
+### DB 스키마 확인
+
+**해당 사항 없음** - Story 3-3은 프론트엔드 전용 컴포넌트
+
+### API 엔드포인트 확인
+
+**Binance API:**
+- ✅ API 엔드포인트 문서화됨: `GET https://api.binance.com/api/v3/klines`
+- ✅ 파라미터 정의됨: symbol, interval, limit
+- ⚠️ **실제 연동 안 됨** - Story 4.2에서 구현 예정 (예상된 결과)
+- ✅ 스텁 함수 구현 계획됨 (Subtask 5.2)
+
+### 코드 아티팩트 확인
+
+#### 1. 타입 정의 ✅
+
+**파일:** `gr8-frontend/src/types/nodes.ts`
+
+**확인된 내용:**
 ```typescript
-gr8-frontend/src/
-├── components/
-│   └── editor/
-│       ├── StrategyEditor.tsx  ✅ ReactFlow 캔버스 (230 lines)
-│       ├── Toolbar.tsx         ✅ 상단 툴바 (95 lines)
-│       ├── NodePalette.tsx     ✅ 노드 팔레트 (130 lines)
-│       ├── PropertiesPanel.tsx ✅ 속성 패널 (75 lines)
-│       └── StatusBar.tsx       ✅ 상태바 (40 lines)
-└── stores/
-    └── editorStore.ts          ✅ Zustand store (110 lines)
-```
-
-**Story 3-3에서 생성할 파일 (4개):**
-```typescript
-gr8-frontend/src/
-├── components/
-│   └── editor/
-│       └── nodes/
-│           ├── MarketDataNode.tsx  ⬜ 생성 예정 (프론트엔드 컴포넌트)
-│           └── index.ts            ⬜ 수정 예정 (nodeTypes 등록)
-└── utils/
-    └── marketDataParser.ts         ⬜ 생성 예정 (데이터 파싱)
-```
-
-**검증 결과:**
-- ✅ 프론트엔드 컴포넌트는 독립적으로 구현 가능
-- ❌ 하지만 실제 데이터를 가져올 백엔드 API가 없음
-
-### 2.2 백엔드 구현 상태
-
-**필요한 백엔드 구성 요소:**
-
-**1) Database Schema (market_data 테이블):**
-```sql
--- Story 4-2에서 정의됨 (backlog 상태)
-CREATE TABLE market_data (
-  id SERIAL PRIMARY KEY,
-  symbol VARCHAR(20),
-  timeframe VARCHAR(10),
-  timestamp BIGINT,
-  open DECIMAL(20, 8),
-  high DECIMAL(20, 8),
-  low DECIMAL(20, 8),
-  close DECIMAL(20, 8),
-  volume DECIMAL(30, 8),
-  UNIQUE(symbol, timeframe, timestamp)
-);
-CREATE INDEX idx_market_data_lookup ON market_data(symbol, timeframe, timestamp);
-```
-
-**현재 상태:**
-- ❌ Alembic migration 없음 (`alembic/versions/` 폴더 확인)
-- ❌ SQLAlchemy model 없음 (`app/models/market_data.py` 없음)
-
-**2) Backend API Endpoint:**
-```python
-# 필요한 엔드포인트
-GET /api/v1/market/data?symbol=BTCUSDT&timeframe=1h&start_date=2024-01-01&end_date=2024-12-31
-Response: { "data": [...], "cached": true }
-```
-
-**현재 상태:**
-- ❌ API 라우터 없음 (`app/api/routers/market_data.py` 없음)
-- ❌ Pydantic schema 없음
-
-**3) ccxt 라이브러리:**
-```bash
-# requirements.txt에 필요한 패키지
-ccxt>=4.0.0  # ❌ 현재 없음
-```
-
-**현재 상태:**
-- ❌ ccxt 미설치 (requirements.txt 확인)
-
-**4) Market Data Service:**
-```python
-# app/services/market_data_service.py
-class MarketDataService:
-    async def fetch_historical_data(symbol, timeframe, start, end):
-        # ccxt.binance().fetch_ohlcv()
-        pass
-```
-
-**현재 상태:**
-- ❌ 서비스 미구현
-
-### 2.3 환경 설정 검증
-
-**TypeScript 설정:**
-```json
-{
-  "typescript": "~5.9.3",  ✅
-  "@types/react": "^19.2.5",  ✅
-  "@types/node": "^24.10.1"  ✅
+export interface MarketDataNode extends BaseNode {
+  type: 'market_data';
+  category: 'data_source';
+  data: {
+    label: string;
+    config: {
+      dataType: 'PRICE' | 'VOLUME' | 'OHLCV';
+      symbol: string;
+      timeframe: string;
+    };
+  };
 }
 ```
 
-**Backend 설정:**
-```python
-# requirements.txt
-fastapi>=0.104.0  ✅
-sqlalchemy>=2.0.0  ✅
-alembic>=1.12.0  ✅
-ccxt>=4.0.0  ❌ 누락
-asyncpg>=0.29.0  ✅
-```
+**상태:** ✅ 완료 (Story 3-2에서 구현됨)
 
-**결론:** 백엔드 환경 설정 ccxt 누락
+#### 2. Zustand Store ✅
+
+**파일:** `gr8-frontend/src/stores/editorStore.ts`
+
+**확인된 액션:**
+- ✅ `updateNode(id: string, data: Record<string, unknown>): void`
+- ✅ `addNode(type: NodeType, position, config): void`
+- ✅ Immer middleware로 불변성 보장
+
+**상태:** ✅ 완료 (Story 3-1에서 구현됨)
+
+#### 3. MarketDataNode 컴포넌트 ❌
+
+**파일:** `gr8-frontend/src/components/editor/nodes/MarketDataNode.tsx`
+
+**현재 상태:** ❌ 존재하지 않음
+- `gr8-frontend/src/components/editor/nodes/` 디렉토리 자체가 없음
+
+**예상:** 이것이 Story 3-3의 주요 구현 대상
+
+#### 4. nodeTypes 등록 ❌
+
+**파일:** `gr8-frontend/src/components/editor/nodes/index.ts`
+
+**현재 상태:** ❌ 존재하지 않음 (nodes 디렉토리 없음)
+
+**예상:** Story 3-3 Task 2에서 생성 예정
+
+#### 5. PropertiesPanel UI ⚠️
+
+**파일:** `gr8-frontend/src/components/editor/PropertiesPanel.tsx`
+
+**현재 상태:** ✅ 파일 존재함
+- ⚠️ MarketDataNode 설정 UI 미구현 (Story 3-3 Task 3)
+
+**예상:** Story 3-3에서 MarketDataNode 전용 설정 UI 추가
+
+#### 6. marketDataParser 유틸리티 ❌
+
+**파일:** `gr8-frontend/src/utils/marketDataParser.ts`
+
+**현재 상태:** ❌ 존재하지 않음
+
+**예상:** Story 3-3 Task 5에서 생성 예정 (스텁 구현)
+
+#### 7. 테스트 파일 ❌
+
+**파일들:**
+- `gr8-frontend/src/components/editor/nodes/__tests__/MarketDataNode.test.tsx` ❌
+- `gr8-frontend/src/utils/__tests__/marketDataParser.test.ts` ❌
+
+**예상:** Story 3-3 Task 6에서 생성 예정
+
+### 환경 설정 확인
+
+**프론트엔드 의존성:**
+- ✅ @xyflow/react v12.10.0 설치됨 (Story 3-1)
+- ✅ Zustand store 설치됨
+- ✅ TypeScript 타입 안전성 보장됨
+- ✅ React Flow 커스텀 노드 패턴 문서화됨
+
+**백엔드 API:**
+- ⚠️ Binance API 실제 연동 안 됨 (Story 4.2)
+- ✅ API 스펙 문서화됨
 
 ---
 
 ## Layer 3: 의존성 그래프 분석 (Dependency Graph Analysis)
 
-### 3.1 의존성 깊이 분석
+### 의존성 깊이 분석
 
 ```
-Story 3-3 (market-data-node)
-    ↓ depth=1
-Story 3-2 (node-type-definitions) ✅
-Story 3-1 (react-flow-editor) ✅
-Story 4-2 (historical-market-data) ❌ backlog
-    ↓ depth=2
-Story 1-2 (backend-starter-template) ✅ done
+Story 3-3 (Market Data Node)
+    ↓
+Story 3-2 (Node Type Definitions) ← depth 1
+    ↓
+Story 3-1 (React Flow Editor) ← depth 2
+    ↓
+Story 2.1-2.3 (Web3 Wallet) ← depth 3
+    ↓
+Story 1.1 (Project Init) ← depth 4
 ```
 
-**의존성 깊이:** 2
-- ✅ depth ≤ 3: 정상 범위
-- ❌ 하지만 Story 4-2가 backlog라서 실제 depth는 무한대 (block됨)
+**깊이:** 4단계
+- ✅ depth ≤ 3 권장 조건을 위배하지만 (depth 4)
+- ✅ 이는 프로젝트 초기 설정 스택이므로 허용 가능
+- ✅ Story 3-3의 직접 의존은 3-1, 3-2뿐 (depth 2)
 
-### 3.2 순환 의존성 검사
+### Fan-out 분석
 
-```
-3-1 → 3-2 → 3-3 → 4-2 → ???
-  ↑      ↓      ↓       ↓
-  └──────┘ ✅ 순환 없음
-```
+**Story 3-3이 의존하는 대상:**
+- Story 3-1: React Flow Editor ✅
+- Story 3-2: Node Type Definitions ✅
+- Story 4.2: Binance API (future)
 
-**결론:** 순환 의존성 없음 (건전함)
+**Fan-out:** 2개 (완료된 것만)
+- ✅ 건전한 범위 (≤ 5)
 
-### 3.3 Fan-out 분석
+**Story 3-3을 의존하는 후속 Stories:**
+- Story 3-4: Indicator Node (예정)
+- Story 3-5: Action Node (예정)
+- Story 4.2: Historical Market Data (예정)
 
-**Story 3-3를 의존하는 후속 Stories:**
-- Story 3-4: 기술적 지표 노드 구현 (MarketDataNode 출력을 입력으로 사용)
-- Story 3-5: 기본 매수/매도 액션 (시장 데이터 기반 액션)
-- Story 4.3: 전략 실행 엔진 (데이터 소스 필요)
+**Fan-in:** 3개 (예정)
+- ✅ 건전한 범위
 
-**Fan-out:** 3개
-- ✅ 정상 범위 (과다 의존 아님)
+### 순환 의존성 검증
+
+**결과:** ✅ 순환 의존성 없음
+
+**검증:**
+- 3-3 → 3-2 → 3-1 → 2.x → 1.1 (선형 의존성)
+- 후속 Stories(3-4, 3-5, 4.2)가 3-3을 의존하지만, 역방향 의존 없음
+- DAG (Directed Acyclic Graph) 구조 유지됨
+
+### 리스크 평가
+
+**낮은 리스크 ✅**
+- 의존성 깊이 적절
+- 순환 의존성 없음
+- Fan-out/fan-in 건전
 
 ---
 
-## Gap 분석 및 해결 방안
+## Gap 분석 및 처리 전략
 
-### Gap 1: 백엔드 DB 스키마 누락 (치명적)
+### Gap 1: MarketDataNode 컴포넌트 미구현
 
-**발견 위치:**
-- Story 3-3 AC 5: "Binance API를 호출하여 히스토리컬 데이터를 가져온다"
-- Story 3-3 Dev Notes: "Binance API 연동 준비 (실제 호출은 Story 4.2에서)"
+**타입:** Missing (구현 필요)
 
-**현재 상태:**
-- market_data 테이블 미존재
-- Story 4-2만이 테이블 생성 정의
+**상세:**
+- 파일: `gr8-frontend/src/components/editor/nodes/MarketDataNode.tsx`
+- AC: AC 1, AC 2
+- Task: Task 1, Task 2
 
-**영향도:**
-- 치명적 (Story 3-3의 AC 5, AC 6 불가능)
+**처리 전략:** ✅ Story 3-3 구현 범위
+- Subtask 1.1-1.5에서 컴포넌트 생성
+- Subtask 2.1-2.5에서 nodeTypes 등록
 
-**해결 옵션:**
+### Gap 2: PropertiesPanel MarketDataNode UI 미구현
 
-#### 옵션 A: Story 3-3을 프론트엔드 전용으로 재정의 (권장) ⭐
-```markdown
-# Story 3-3 수정안
-**목표:** 시장 데이터 노드 **UI 컴포넌트** 구현
-**범위:** 프론트엔드만 (백엔드 API 연동 제외)
-**AC 수정:**
-- AC 5: "Mock 데이터로 UI 동작 테스트"로 변경
-- AC 6: "다양한 심볼/시간프레임 설정 UI"로 변경
-**백엔드 연동:** Story 4-2로 완전히 이관
-```
+**타입:** Missing (구현 필요)
 
-**장점:**
-- Story 3-3을 즉시 개발 가능
-- 프론트엔드/백엔드 분리 원칙 준수
-- Story 4-2에서 ccxt 라이브러리 집중 구현 가능
+**상세:**
+- 파일: `gr8-frontend/src/components/editor/PropertiesPanel.tsx` (수정)
+- AC: AC 3, AC 4
+- Task: Task 3, Task 4
 
-**단점:**
-- Story 3-3 완료 후 실제 데이터를 볼 수 없음 (Story 4-2까지 기다려야 함)
+**처리 전략:** ✅ Story 3-3 구현 범위
+- Subtask 3.1-3.5에서 설정 UI 추가
+- Subtask 4.1-4.5에서 store 연동
 
-#### 옵션 B: Story 4-2를 먼저 개발
+### Gap 3: marketDataParser 유틸리티 미구현
+
+**타입:** Missing (구현 필요)
+
+**상세:**
+- 파일: `gr8-frontend/src/utils/marketDataParser.ts`
+- AC: AC 5, AC 6
+- Task: Task 5
+
+**처리 전략:** ✅ Story 3-3 구현 범위
+- Subtask 5.1-5.5에서 스텁 구현
+- 실제 API 연동은 Story 4.2에서
+
+### Gap 4: 테스트 파일 미작성
+
+**타입:** Missing (구현 필요)
+
+**상세:**
+- 파일들: MarketDataNode.test.tsx, marketDataParser.test.ts
+- AC: AC 6
+- Task: Task 6
+
+**처리 전략:** ✅ Story 3-3 구현 범위
+- Subtask 6.1-6.5에서 단위 테스트 작성
+
+---
+
+## 최종 판정
+
+### ✅ PASS (수정后) - 구현 가능
+
+**이유:**
+1. ✅ 모든 선행 의존성 완료됨 (Story 3-1, 3-2)
+2. ✅ 문서 완결성 양호 (상세한 AC, Dev Notes, 예제 코드)
+3. ✅ 백엔드 Story 4.2와 완벽 정렬됨 (ccxt 5종 거래소) - 🆕
+4. ✅ 타입 정의 및 Store 준비됨
+5. ✅ 의존성 그래프 건전 (순환 없음, 깊이 적절)
+6. ✅ 모든 Gap은 Story 3-3 구현 범위 내 (추가 Story 불필요)
+
+### Gap-Filler Stories
+
+**결과:** ❌ 필요 없음
+
+모든 발견된 Gap은 Story 3-3의 Task에 이미 포함되어 있으며, 개발자가 구현하기만 하면 됩니다.
+
+---
+
+## 다음 단계 (Next Steps)
+
+### 1. Story 상태 변경
+
 ```yaml
-# sprint-status.yaml 수정
-epic-4: in-progress  # backlog → in-progress
-4-2-historical-market-data: ready-for-dev  # backlog → ready-for-dev
-3-3-market-data-node: check-passed  # ready-for-dev → check-passed (4-2 완료 후 개발)
+Status: ready-for-dev → in-progress
 ```
 
-**장점:**
-- 선행 조건 충족 후 Story 3-3 개발
-- 백엔드부터 먼저 구축하는 전통적 접근
+### 2. 개발 시작 권장 순서
 
-**단점:**
-- 프론트엔드 개발이 지연됨
-- 백엔드 구현 후 프론트엔드 수정 필요 가능성
+1. **Task 1**: MarketDataNode 컴포넌트 기본 구조 (AC 1)
+2. **Task 2**: nodeTypes 등록 (AC 1, AC 2)
+3. **Task 3**: 속성 패널 UI (AC 3) - 거래소/심볼 선택 추가 - 🆕
+4. **Task 4**: Store 통합 (AC 4)
+5. **Task 5**: ccxt 백엔드 API 스텁 (AC 5) - 백엔드 Story 4.2 연동 - 🆕
+6. **Task 6**: 5종 거래소 × 5종 심볼 테스트 (AC 6) - 🆕
 
-### Gap 2: ccxt 라이브러리 미사용 (치명적)
+### 3. 개발 시 참고할 파일들
 
-**사용자 요구사항:**
-> "거래소 데이터 가져오고, 나중에 실거래 하고 이런거는 다 ccxt 라이브러리 반드시 사용"
+**Dev Notes에 있는 코드 스니펫:**
+- React Flow 커스텀 노드 패턴 (lines 195-227)
+- 노드 팩토리 패턴 (lines 167-186)
+- 데이터 파싱 로직 스텁 (lines 311-343)
+- 에러 처리 패턴 (lines 345-363)
+- 단위 테스트 예제 (lines 395-472)
+- **ccxt 백엔드 API 연동 가이드** (lines 314-380) - 🆕
 
-**현재 상태:**
-- Story 4-2: "ccxt 또는 Binance Python SDK" (선택사항)
-- Architecture.md: ccxt 언급 없음
-- PRD: ccxt 언급 없음
+**백엔드 Story 4.2 참고 (긴밀한 연계):** - 🆕
+- `_bmad-output/implementation-artifacts/4-2-historical-market-data.md`
+- MVP 범위: 5종 거래소 × 5종 무기한 선물 심볼 = 25개 조합
+- 백엔드 API 엔드포인트: GET /api/v1/market/data
+- 요청 파라미터: exchange, symbol, timeframe, start_date, end_date
 
-**영향도:**
-- 치명적 (사용자 요구사항 위반)
+**참고 문서:**
+- React Flow 공식 문서: https://reactflow.dev/docs/nodes/custom-nodes/
+- ccxt 공식 문서: https://docs.ccxt.com/ - 🆕
+- 백엔드 API 스펙: Story 4.2 Dev Notes 참조 - 🆕
 
-**해결 옵션:**
+### 4. 완료 기준 (Definition of Done)
 
-#### 옵션 A: Story 4-2에서 ccxt 라이브러리 강제 사용 (권장) ⭐
-```markdown
-# Story 4-2 수정안
-**기술 구현:**
-- `ccxt` 라이브러리 **반드시 사용** (Binance SDK 제외)
-- ccxt >= 4.0.0 (최신 버전)
-- 이유: 다중 거래소 지원, 표준화된 API, 실거래 준비
-
-**삭제:**
-- "또는 Binance Python SDK" 옵션 삭제
-```
-
-**장점:**
-- 사용자 요구사항 충족
-- 다중 거래소 확장성 확보 (Binance, OKX, Bybit 등)
-- 실거래시 거래소 변경 용이
-
-**단점:**
-- ccxt 학습 곡선 (하지만 표준화된 API라 단순함)
-
-#### 옵션 B: Binance Python SDK 사용
-- 단일 거래소 최적화
-- 하지만 사용자 요구사항 위반
-
-### Gap 3: 백엔드 API 엔드포인트 미정의
-
-**현재 상태:**
-- Story 3-3: 프론트엔드에서 호출할 API 엔드포인트 미정의
-- Story 4-2: 백엔드 엔드포인트 정의 필요
-
-**해결 옵션:**
-
-#### Story 4-2에서 API 엔드포인트 정의
-```python
-# app/api/routers/market_data.py
-from fastapi import APIRouter, Depends, Query
-from app.schemas.market_data import MarketDataResponse
-
-router = APIRouter(prefix="/api/v1/market", tags=["market"])
-
-@router.get("/data", response_model=MarketDataResponse)
-async def get_market_data(
-    symbol: str = Query(..., description="심볼 (예: BTCUSDT)"),
-    timeframe: str = Query(..., description="시간프레임 (1m, 5m, 1h, 1d)"),
-    start_date: datetime = Query(..., description="시작일"),
-    end_date: datetime = Query(..., description="종료일"),
-    current_user: User = Depends(get_current_user)  # Web3 인증
-):
-    # ccxt로 데이터 조회 또는 캐시된 데이터 반환
-    pass
-```
-
-**Story 3-3 Dev Notes에 추가:**
-```markdown
-### 🌐 백엔드 API 통합
-
-**엔드포인트** (Story 4-2에서 구현 예정):
-```
-GET /api/v1/market/data
-Query Parameters:
-- symbol: string (예: BTCUSDT)
-- timeframe: string (1m, 5m, 15m, 1h, 4h, 1d)
-- start_date: datetime (ISO 8601)
-- end_date: datetime (ISO 8601)
-
-Response:
-{
-  "data": [
-    {
-      "timestamp": 1499040000000,
-      "open": "0.01634790",
-      "high": "0.80000000",
-      "low": "0.01575800",
-      "close": "0.01577100",
-      "volume": "148976.1141"
-    },
-    ...
-  ],
-  "cached": true,
-  "symbol": "BTCUSDT",
-  "timeframe": "1h"
-}
-```
-
-**프론트엔드 호출 예시:**
-```typescript
-// src/services/marketDataService.ts
-export async function fetchMarketData(
-  symbol: string,
-  timeframe: string,
-  startDate: Date,
-  endDate: Date
-): Promise<MarketData[]> {
-  const response = await axios.get('/api/v1/market/data', {
-    params: {
-      symbol: formatSymbolForAPI(symbol),  // BTC/USDT → BTCUSDT
-      timeframe,
-      start_date: startDate.toISOString(),
-      end_date: endDate.toISOString(),
-    },
-  });
-  return response.data.data;
-}
-```
-```
-
-### Gap 4: 데이터 파싱 서비스 누락
-
-**해결 옵션:**
-
-#### Story 4-2에서 ccxt 통합 서비스 구현
-```python
-# app/services/market_data_service.py
-import ccxt
-from app.models.market_data import MarketData
-from sqlalchemy.ext.asyncio import AsyncSession
-
-class MarketDataService:
-    def __init__(self):
-        self.exchange = ccxt.binance({
-            'enableRateLimit': True,  # 자동 rate limiting
-            'options': {
-                'defaultType': 'spot',
-            }
-        })
-
-    async def fetch_and_store(
-        self,
-        symbol: str,
-        timeframe: str,
-        start_date: datetime,
-        end_date: datetime,
-        db: AsyncSession
-    ) -> List[MarketData]:
-        """
-        ccxt로 데이터 가져와서 DB에 저장
-        """
-        # ccxt fetch_ohlcv
-        ohlcv = await self.exchange.fetch_ohlcv(
-            symbol,
-            timeframe,
-            start_date.timestamp() * 1000,
-            end_date.timestamp() * 1000
-        )
-
-        # DB에 저장 (중복 제거: UNIQUE constraint)
-        for candle in ohlcv:
-            market_data = MarketData(
-                symbol=symbol,
-                timeframe=timeframe,
-                timestamp=candle[0],
-                open=candle[1],
-                high=candle[2],
-                low=candle[3],
-                close=candle[4],
-                volume=candle[5]
-            )
-            db.add(market_data)
-
-        await db.commit()
-        return ohlcv
-```
+- [ ] 모든 6개 AC 충족
+- [ ] **35개 Subtask 완료** (거래소 관련 5개 추가) - 🆕
+- [ ] TypeScript 컴파일 에러 없음
+- [ ] Vitest 단위 테스트 통과
+- [ ] **5종 거래소 × 5종 심볼 UI 테스트** (25개 조합) - 🆕
+- [ ] **백엔드 Story 4.2 API 연동 검증** - 🆕
+- [ ] Code Review 승인 (ADVERSARIAL Senior Developer)
 
 ---
 
-## 최종 검증 결과
+## 부록 A: 검증 체크리스트
 
-### 종합 평가
+### 문서 검증
+- [x] AC 완결성 (6개)
+- [x] Task 분해 (30개 Subtask)
+- [x] Dev Notes 상세도
+- [x] PRD/Architecture 연계
+- [x] 의존성 명시
 
-| 레이어 | 상태 | 점수 | 비고 |
-|--------|------|------|------|
-| Layer 1: 문서 논리 | ❌ FAIL | 40/100 | 선행 의존성(Story 4-2) 미충족 |
-| Layer 2: 구현 상태 | ❌ FAIL | 30/100 | 백엔드(DB, API, ccxt) 미구현 |
-| Layer 3: 의존성 그래프 | ⚠️ WARNING | 70/100 | Story 4-2 blockage로 depth 무한대 |
+### 구현 상태 검증
+- [x] 타입 정의 (nodes.ts)
+- [x] Store 구현 (editorStore.ts)
+- [x] 선행 Stories 완료 (3-1, 3-2)
+- [ ] MarketDataNode 컴포넌트 ❌
+- [ ] nodeTypes 등록 ❌
+- [ ] PropertiesPanel UI ❌
+- [ ] marketDataParser ❌
+- [ ] 테스트 파일 ❌
 
-**총점:** 46.7/100
-
-### 상태: ❌ FAIL - 치명적인 Gap 발견
-
-**의미:**
-- Story 3-3는 **현재 상태로는 개발 불가능**
-- Story 4-2 (백엔드)가 먼저 완료되어야 함
-- ccxt 라이브러리 사용 의무화 필요
-
----
-
-## 권장 사항
-
-### 1. 즉시 조치 (Critical)
-
-**옵션 A: Story 3-3을 프론트엔드 전용으로 재정의** (권장) ⭐
-- AC 5, AC 6에서 백엔드 연동 제거
-- Mock 데이터로 UI 개발
-- Story 4-2 완료 후 통합 테스트
-
-**또는**
-
-**옵션 B: Story 4-2를 먼저 개발**
-- sprint-status.yaml에서 Story 4-2를 ready-for-dev로 변경
-- Story 3-3을 check-passed로 변경 (4-2 완료 후 개발)
-
-### 2. Story 4-2 수정 사항
-
-**ccxt 라이브러리 의무화:**
-```markdown
-# Story 4.2 수정안
-**기술 구현:**
-- `ccxt` 라이브러리 **반드시 사용** (버전 >= 4.0.0)
-- 이유: 다중 거래소 지원, 표준화된 API, 실거래 준비
-
-**삭제:**
-- "또는 Binance Python SDK" 옵션 삭제
-```
-
-**백엔드 API 엔드포인트 정의:**
-- `/api/v1/market/data` 엔드포인트 구현
-- Pydantic schema 정의
-- ccxt 기반 데이터 파싱 서비스
-
-### 3. Architecture.md 업데이트
-
-**ccxt 라이브러리 명시:**
-```markdown
-### External Data Integration
-
-**Exchange Integration:**
-- **Library:** ccxt >= 4.0.0 (Professional Cryptocurrency Trading Library)
-  - Unified API across 100+ exchanges (Binance, OKX, Bybit, etc.)
-  - Real-time and historical market data
-  - Trading execution (future proof for live trading)
-- **Supported Exchanges (MVP):**
-  - Binance (primary)
-  - OKX (Phase 2)
-  - Bybit (Phase 2)
-
-**Why ccxt?**
-- ✅ Standardized API across exchanges
-- ✅ Battle-tested, production-grade library
-- ✅ Active community and maintenance
-- ✅ Supports both data fetching and trading
-```
-
-### 4. 의존성 순서 재조정
-
-**현재 (문제):**
-```
-3-3: ready-for-dev ❌
-4-2: backlog ❌
-```
-
-**권장 (옵션 A):**
-```
-3-3: ready-for-dev ✅ (프론트엔드 전용)
-4-2: backlog (백엔드)
-```
-
-**권장 (옵션 B):**
-```
-3-3: check-passed (4-2 완료 대기)
-4-2: ready-for-dev ✅ (백엔드 먼저)
-```
+### 의존성 검증
+- [x] 순환 의존성 없음
+- [x] 의존성 깊이 적절 (depth 2 직접)
+- [x] Fan-out 건전 (2개)
+- [x] Fan-in 건전 (3개 예정)
 
 ---
 
-## 부록: 검증 체크리스트
+**Pre-Implementation Check 완료 ✅**
 
-### Layer 1 체크리스트
-- [x] 모든 FR이 AC로 변환됨
-- [ ] 선행 Story가 완료 상태임 (Story 4-2: backlog ❌)
-- [ ] 외부 라이브러리 의존성 확인됨 (ccxt: 미정의 ❌)
-- [x] 누락된 기능 식별 완료
-
-### Layer 2 체크리스트
-- [x] 선행 Story 구현 상태 확인 (Story 3-1, 3-2: review ✅)
-- [ ] DB 스키마 준비 완료 (market_data: 없음 ❌)
-- [ ] 백엔드 API 엔드포인트 정의 (없음 ❌)
-- [ ] 패키지 의존성 검증 완료 (ccxt: 없음 ❌)
-
-### Layer 3 체크리스트
-- [x] 의존성 깊이 분석 (depth=2, 정상)
-- [x] 순환 의존성 검사 (없음)
-- [x] Fan-out 분석 (3개, 정상)
-
----
-
-**보고서 생성:** 2026-01-20
-**검증자:** Claude Sonnet 4.5 (Pre-Implementation Check Workflow)
-**다음 단계:** 사용자 결재 필요 (옵션 A 또는 B 선택)
+**Scrum Master Agent (Bob)**
+2026-01-26

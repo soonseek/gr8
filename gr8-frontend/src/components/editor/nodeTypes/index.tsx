@@ -133,50 +133,52 @@ TriggerNodeComponent.displayName = 'TriggerNodeComponent';
 
 /**
  * Market Data Node Component
- * Displays market data source configuration (symbol, timeframe, data type)
+ * Displays market data source configuration (exchange, symbol, timeframe, data type)
+ *
+ * 🆕 Supports 5 exchanges (Binance, OKX, Bybit, Gate.io, Bitget) × 5 symbols (BTC, ETH, SOL, XRP, DOGE)
+ * NOTE: DATA_SOURCE category - no input handle, only output
+ * This node provides data to other nodes in the strategy
  */
 export const MarketDataNodeComponent = memo(({ data, selected }: NodeProps) => {
   const nodeData = data as MarketDataNode['data'];
+  const { exchange, dataType, symbol, timeframe } = nodeData.config;
 
   return (
     <div
-      className={`px-4 py-2 rounded-lg border-2 bg-gray-800 border-blue-500 ${
-        selected ? 'ring-2 ring-blue-300' : ''
-      }`}
-      style={{ minWidth: '200px' }}
+      className={`
+        px-4 py-2 rounded-lg border-2 transition-all
+        ${selected ? 'border-blue-500 shadow-lg ring-2 ring-blue-300' : 'border-gray-700'}
+        bg-gray-800 text-gray-100 min-w-[200px]
+      `}
     >
-      {/* Input handle */}
-      <Handle type="target" position={Position.Top} className="w-3 h-3" />
+      {/* Output handle only - no input (DATA_SOURCE category) */}
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="w-3 h-3 bg-blue-500 border-2 border-gray-900"
+      />
 
-      {/* Header */}
+      {/* Node icon and label */}
       <div className="flex items-center gap-2 mb-2">
-        <div className="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-white font-bold">
-          M
-        </div>
+        <span className="text-2xl" role="img" aria-label="Market Data">
+          📊
+        </span>
         <div>
-          <div className="font-bold text-white text-sm">{nodeData.label}</div>
+          <div className="font-semibold text-sm">{nodeData.label}</div>
           <div className="text-xs text-gray-400">Market Data</div>
         </div>
       </div>
 
-      {/* Config Display */}
-      <div className="text-xs text-gray-300 space-y-1">
-        <div className="flex justify-between">
-          <span>Type:</span>
-          <span className="text-blue-400">{nodeData.config.dataType}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Symbol:</span>
-          <span className="text-green-400">{nodeData.config.symbol}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Timeframe:</span>
-          <span className="text-yellow-400">{nodeData.config.timeframe}</span>
-        </div>
+      {/* Data type, symbol, timeframe badge */}
+      <div className="text-xs text-gray-400 flex items-center gap-2 flex-wrap">
+        <span className="text-cyan-400 font-medium">{exchange || 'binance'}</span>
+        <span>•</span>
+        <span className="text-green-400">{symbol}</span>
+        <span>•</span>
+        <span className="text-blue-400">{dataType}</span>
+        <span>•</span>
+        <span className="text-yellow-400">{timeframe}</span>
       </div>
-
-      {/* Output handle */}
-      <Handle type="source" position={Position.Bottom} className="w-3 h-3" />
     </div>
   );
 });

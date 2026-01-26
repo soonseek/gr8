@@ -113,6 +113,7 @@ function createTriggerNode(
 
 /**
  * Create Market Data Node
+ * 🆕 Supports 5 exchanges (Binance, OKX, Bybit, Gate.io, Bitget) × 5 symbols (BTC, ETH, SOL, XRP, DOGE)
  */
 function createMarketDataNode(
   id: string,
@@ -127,8 +128,9 @@ function createMarketDataNode(
     data: {
       label: 'Market Data',
       config: {
+        exchange: 'binance',         // 🆕 Default exchange
         dataType: MarketDataType.PRICE,
-        symbol: 'BTC/USDT',
+        symbol: 'BTC',                // 🆕 Perpetual futures (no slash)
         timeframe: '1h' as Timeframe,
         ...config,
       },

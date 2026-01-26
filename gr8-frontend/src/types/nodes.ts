@@ -143,6 +143,7 @@ export type TriggerNode = BaseNode & {
 
 /**
  * Market Data Node - Fetches market data (price, volume, OHLCV)
+ * 🆕 Supports 5 exchanges (Binance, OKX, Bybit, Gate.io, Bitget) × 5 symbols (BTC, ETH, SOL, XRP, DOGE)
  */
 export interface MarketDataNode extends BaseNode {
   type: 'market_data';
@@ -150,8 +151,9 @@ export interface MarketDataNode extends BaseNode {
   data: {
     label: string;
     config: {
+      exchange?: string;     // 🆕 'binance' | 'okx' | 'bybit' | 'gate' | 'bitget' (default: binance)
       dataType: MarketDataType;
-      symbol: string;        // e.g., 'BTC/USDT', 'ETH/USDT'
+      symbol: string;        // 🆕 Perpetual futures: 'BTC', 'ETH', 'SOL', 'XRP', 'DOGE'
       timeframe: Timeframe;
     };
   };

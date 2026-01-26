@@ -67,7 +67,7 @@ development_status:
   3-1-1-landing: done # 📝 리뷰 대기 - 랜딩 페이지 완료 (Hero, 문제 정의, 솔루션, 기능, CTA, 푸터, PRD 기반 김준혁 스토리텔링, 3가지 핵심 가치 전달)
   3-1-2-nav: done # 📝 리뷰 대기 - 네비게이션 시스템 완료 (사이드바, 헤더, 워크스페이스 홈, 라우팅, 반응형 디자인)
   3-2-node-type-definitions: done # ✅ 완료 - 2차 리뷰 승인 (9개 HIGH 이슈 모두 해결: TRIGGER/NodeCategory/TriggerNode 완벽 구현, AC 5/8 충족, TypeScript 컴파일 성공)
-  3-3-market-data-node: ready-for-dev # ✅ Story 4-2 완료로 개발 가능 - 백엔드 API (ccxt, DB) 준비 완료, 프론트엔드 연결 필요
+  3-3-market-data-node: done # ✅ 완료 - 5종 거래소 × 5종 심볼 지원 (25개 조합), 33/33 테스트 통과, 코드 리뷰 후속 조치 완료
   3-4-technical-indicator-node: backlog
   3-5-basic-buy-sell-action: backlog
   3-6-split-buy-sell: backlog

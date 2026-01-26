@@ -76,7 +76,8 @@
       "Bash(curl:*)",
       "Bash(taskkill:*)",
       "Bash(netstat:*)",
-      "Bash(../venv/Scripts/python.exe -m pytest:*)"
+      "Bash(../venv/Scripts/python.exe -m pytest:*)",
+      "Bash(if not exist \"_bmad-output\\check-reports\" mkdir:*)"
     ]
   }
 }
