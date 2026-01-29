@@ -6,27 +6,21 @@ import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { SaveStrategyModal } from './SaveStrategyModal';
+import { LoadStrategyModal } from './LoadStrategyModal';
 
 export function Toolbar() {
   const [isLoading, setIsLoading] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showLoadModal, setShowLoadModal] = useState(false);
   const navigate = useNavigate();
 
   const handleSave = () => {
-    setIsLoading(true);
-    // TODO: Implement save functionality (Story 3.10)
-    setTimeout(() => {
-      toast.success('전략이 저장되었습니다');
-      setIsLoading(false);
-    }, 500);
+    setShowSaveModal(true);
   };
 
   const handleLoad = () => {
-    setIsLoading(true);
-    // TODO: Implement load functionality (Story 3.10)
-    setTimeout(() => {
-      toast.success('전략이 로드되었습니다');
-      setIsLoading(false);
-    }, 500);
+    setShowLoadModal(true);
   };
 
   const handleRun = () => {
