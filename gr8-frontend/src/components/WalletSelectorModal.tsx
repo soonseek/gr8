@@ -227,8 +227,11 @@ export function WalletSelectorModal({
           {availableWallets.map((wallet) => (
             <button
               key={wallet.id}
-              onClick={() => handleWalletSelect(wallet.id)}
-              disabled={isPending}
+              onClick={() => {
+                console.log('🔵 Button clicked for wallet:', wallet.id);
+                handleWalletSelect(wallet.id);
+              }}
+              disabled={isPending || wallet.disabled}
               className="w-full flex items-center gap-3 p-4 rounded-lg
                        bg-gray-700 hover:bg-gray-600
                        disabled:opacity-50 disabled:cursor-not-allowed
@@ -241,7 +244,10 @@ export function WalletSelectorModal({
 
               {/* Wallet Info */}
               <div className="flex-1 text-left">
-                <div className="font-semibold text-base">{wallet.name}</div>
+                <div className="font-semibold text-base">
+                  {wallet.name}
+                  {wallet.disabled && <span className="ml-2 text-xs text-red-400">(미설치)</span>}
+                </div>
                 <div className="text-sm text-gray-400">
                   {wallet.description}
                 </div>
