@@ -44,6 +44,8 @@ import { NodePalette } from './NodePalette';
 import { PropertiesPanel } from './PropertiesPanel';
 import { StatusBar } from './StatusBar';
 import { BacktestPanel } from './BacktestPanel';
+import { LLMStrategyPanel } from './LLMStrategyPanel';
+import { ChainSwitcher } from '@/components/ChainSwitcher';
 import { nodeTypes } from './nodeTypes';
 
 
