@@ -68,30 +68,44 @@ development_status:
   3-1-2-nav: done # 📝 리뷰 대기 - 네비게이션 시스템 완료 (사이드바, 헤더, 워크스페이스 홈, 라우팅, 반응형 디자인)
   3-2-node-type-definitions: done # ✅ 완료 - 2차 리뷰 승인 (9개 HIGH 이슈 모두 해결: TRIGGER/NodeCategory/TriggerNode 완벽 구현, AC 5/8 충족, TypeScript 컴파일 성공)
   3-3-market-data-node: done # ✅ 완료 - 5종 거래소 × 5종 심볼 지원 (25개 조합), 33/33 테스트 통과, 코드 리뷰 후속 조치 완료
-  3-4-technical-indicator-node: backlog
-  3-5-basic-buy-sell-action: backlog
-  3-6-split-buy-sell: backlog
-  3-7-conditional-branch-node: backlog
-  3-8-loop-structure: backlog
-  3-9-risk-management-node: backlog
-  3-10-strategy-save-load: backlog
-  3-11-strategy-export-import: backlog
-  3-12-strategy-name-description: backlog
+  # Gap-Filler Story for 3-4 (Pre-Implementation Check - Layer 2 Gap)
+  3-4-deps-1: ready-for-dev # ✅ ready-for-dev - technicalindicators 라이브러리 설치 및 TypeScript 타입 정의 (Story 3-4 선행 조건)
+  3-4-technical-indicator-node: check # ⚠️ check - Pre-Implementation Check 완료 (Gaps Found: 3-4-deps-1 보완 Story 생성)
+  3-5-basic-buy-sell-action: check-passed # ✅ check-passed - Pre-Implementation Check 완료 (모든 레이어 통과, ActionComponent 이미 구현됨, 즉시 개발 가능)
+  3-6-split-buy-sell: check-passed # ✅ check-passed - Pre-Implementation Check 완료 (모든 레이어 통과: ActionNode 필드 있음, Component 표시됨, PropertiesPanel UI만 추가 필요)
+  3-7-conditional-branch-node: check-passed # ✅ check-passed - Pre-Implementation Check 완료 (모든 레이어 통과: 인터페이스 있음, Component 기본 구현됨, 다이아몬드 형태/2개 포트만 추가 필요)
+  3-8-loop-structure: check-passed # ✅ check-passed - Pre-Implementation Check 완료 (모든 레이어 통과: 인터페이스 있음, Component 기본 구현됨, 육각형 형태/Break 노드만 추가 필요)
+  3-9-risk-management-node: check-passed # ✅ check-passed - Pre-Implementation Check 완료 (모든 레이어 통과: 인터페이스 있음, Component 기본 구현됨, 방패 모양/SL-TP UI만 추가 필요)
+  3-10-strategy-save-load: check-passed # ✅ check-passed - Pre-Implementation Check 완료 (모든 레이어 통과: React Flow/Zustand 있음, localStorage API 표준, services 디렉토리 있음)
+  # Gap-Filler Story for 3-11 (Pre-Implementation Check - Layer 2 Gap)
+  3-11-deps-1: ready-for-dev # ✅ ready-for-dev - Zod 라이브러리 설치 및 TypeScript 타입 정의 (Story 3-11 선행 조건)
+  3-11-strategy-export-import: check # ⚠️ check - Pre-Implementation Check 완료 (Gaps Found: 3-11-deps-1 보완 Story 생성, Story 3-10 선행 필요)
+  # Gap-Filler Story for 3-12 (Pre-Implementation Check - Layer 2 Gap)
+  3-12-deps-1: ready-for-dev # ✅ ready-for-dev - React-Markdown 라이브러리 설치 및 remark-sanitize (Story 3-12 선행 조건)
+  3-12-strategy-name-description: check # ⚠️ check - Pre-Implementation Check 완료 (Gaps Found: 3-12-deps-1 보완 Story 생성, Story 3-10 선행 필요, editorStore 확장 필요)
   # DCA 마틴게일 프리셋 버튼 + LLM 대화형 전략 구축 레이어
+  3-13-preset-system: check-passed # ✅ check-passed - Pre-Implementation Check 완료 (모든 레이어 통과: React Flow/Zustand 있음, NodePalette 있음, lucide-react 설치됨, 즉시 개발 가능)
+  3-14-llm-conversational-strategy: check-passed # ✅ check-passed - Pre-Implementation Check 완료 (모든 레이어 통과: React Flow/Zustand 있음, 모든 API 메서드 구현됨, lucide-react 설치됨, MVP 규칙 기반 파싱으로 즉시 개발 가능)
   epic-3-retrospective: optional
 
   # Epic 4: 백테스팅 엔진 및 결과 검증
-  epic-4: in-progress # 🔄 Story 4-2 완료
-  4-1-backtest-engine-architecture: backlog
+  epic-4: in-progress # 🔄 Story 4-2 완료, Story 4-1 check-passed
+  4-1-backtest-engine-architecture: check-passed # ✅ check-passed - Pre-Implementation Check 완료 (모든 레이어 통과, 보완 Story 불필요, 즉시 개발 가능)
   4-2-historical-market-data: done # 🔄 3rd Review 후속 조치 - CRITICAL 2개 (테스트 무한 루프, API 불일치), MEDIUM 4개 (커버리지, Pydantic, pytest, Git), LOW 2개 발견 - 액션 아이템 추가 완료
-  4-3-strategy-execution-engine: backlog
-  4-4-performance-metrics: backlog
-  4-5-trade-tracking: backlog
-  4-6-backtest-storage: backlog
-  4-7-backtest-visualization: backlog
-  4-8-backtest-ui: backlog
-  4-9-template-backtest-results: backlog
-  4-10-backtest-validation: backlog
+  4-3-strategy-execution-engine: check-passed # ✅ check-passed - Pre-Implementation Check 완료 (모든 레이어 통과, 보완 Story 불필요, 즉시 개발 가능)
+  4-4-performance-metrics: check # ⚠️ check - Pre-Implementation Check 완료 (Gaps Found: 4-4-deps-1 보완 Story 생성)
+  # Gap-Filler Story for 4-4 (Pre-Implementation Check - Layer 2 Gap)
+  4-4-deps-1: ready-for-dev # ✅ ready-for-dev - Python 데이터 분석 라이브러리 설치 (numpy, pandas) (Story 4-4 선행 조건)
+  4-5-trade-tracking: check-passed # ✅ check-passed - Pre-Implementation Check 완료 (모든 레이어 통과, Story 4.3 선행 권장, 즉시 개발 가능)
+  4-6-backtest-storage: check-passed # ✅ check-passed - Pre-Implementation Check 완료 (모든 레이어 통과, Story 4.3/4.4/4.5 선행 권장, 보완 Story 불필요, 즉시 개발 가능)
+  4-7-backtest-visualization: check # ⚠️ check - Pre-Implementation Check 완료 (Gaps Found: 4-7-deps-1 보완 Story 생성, Story 4.6 선행 필수)
+  # Gap-Filler Story for 4-7 (Pre-Implementation Check - Layer 2 Gap)
+  4-7-deps-1: ready-for-dev # ✅ ready-for-dev - react-lightweight-charts 라이브러리 설치 (Story 4-7 선행 조건)
+  4-8-backtest-ui: check # ⚠️ check - Pre-Implementation Check 완료 (Gaps Found: 4-8-deps-1 보완 Story 생성, Story 4.3/4.6/4.7 선행 필수)
+  # Gap-Filler Story for 4-8 (Pre-Implementation Check - Layer 2 Gap)
+  4-8-deps-1: ready-for-dev # ✅ ready-for-dev - React Hook Form, Zod, @hookform/resolvers, Shadcn UI Progress 설치 (Story 4-8 선행 조건)
+  4-9-template-backtest-results: check-passed # ✅ check-passed - Pre-Implementation Check 완료 (모든 레이어 통과, 의존성 깊이 5이나 관리 가능, 백엔드 Gap은 Story 4-9에서 구현 예정, 선행 Stories 4-3/4-4/4-6/4-7 완료 후 개발 권장)
+  4-10-backtest-validation: check-passed # ✅ check-passed - Pre-Implementation Check 완료 (모든 레이어 통과, FR26/NFR17 완전 커버, 의존성 깊이 5이나 관리 가능, 백엔드 Gap은 Story 4-10에서 구현 예정, Epic 4 마지막 Story)
   epic-4-retrospective: optional
 
   # Epic 5: 전략 마켓플레이스

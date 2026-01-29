@@ -77,7 +77,10 @@
       "Bash(taskkill:*)",
       "Bash(netstat:*)",
       "Bash(../venv/Scripts/python.exe -m pytest:*)",
-      "Bash(if not exist \"_bmad-output\\check-reports\" mkdir:*)"
+      "Bash(if not exist \"_bmad-output\\check-reports\" mkdir:*)",
+      "Bash(test:*)",
+      "SlashCommand(/bmad:bmm:workflows:create-story 4-3)",
+      "Bash(if not exist \"_bmad-output\\check-reports\" mkdir \"_bmad-output\\check-reports\")"
     ]
   }
 }

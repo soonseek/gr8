@@ -226,22 +226,31 @@ This document provides the complete epic and story breakdown for gr8, decomposin
 - FR15: Epic 3 - 전략 로컬 저장
 - FR16: Epic 3 - 전략 JSON export/import
 - FR17: Epic 3 - 전략 이름 및 설명 수정
+- FR18: Epic 3 - 프리셋 전략 원클릭 로드
+- FR19: Epic 3 - DCA 마틴게일 프리셋(10단)
+- FR20: Epic 3 - RSI 시그널 봇 프리셋
+- FR21: Epic 3 - 프리셋 로드 시 초기화 경고
+- FR22: Epic 3 - 자연어 전략 구성 (LLM 대화형 인터페이스)
+- FR23: Epic 3 - LLM 노드 생성/수정/삭제/연결
+- FR24: Epic 3 - LLM 모호한 요청 시 명확히 질문
+- FR25: Epic 3 - 전략 에디터 좌측 LLM 채팅창 (접이식 사이드바)
+- FR26: Epic 3 - 프리셋/LLM/수동 수정 자유로운 조합
 
 #### 백테스팅 (Backtesting) - Epic 4
-- FR18: Epic 4 - 사용자 전략 백테스트 실행
-- FR19: Epic 4 - 템플릿 전략 백테스트 실행
-- FR20: Epic 4 - 백테스트 기간 설정
-- FR21: Epic 4 - 백테스트 결과 확인
-- FR22: Epic 4 - 백테스트 결과 수익률 표시
-- FR23: Epic 4 - 백테스트 결과 최대 낙폭(MDD) 표시
-- FR24: Epic 4 - 백테스트 결과 샤프 비율 표시
-- FR25: Epic 4 - 백테스트 결과 진입/청산 포인트(액션 히스토리) 표시
-- FR26: Epic 4 - 백테스트 결과 블록체인 검증
-- FR27: Epic 4 - 검증 뱃지 표시
+- FR27: Epic 4 - 사용자 전략 백테스트 실행
+- FR28: Epic 4 - 템플릿 전략 백테스트 실행
+- FR29: Epic 4 - 백테스트 기간 설정
+- FR30: Epic 4 - 백테스트 결과 확인
+- FR31: Epic 4 - 백테스트 결과 수익률 표시
+- FR32: Epic 4 - 백테스트 결과 최대 낙폭(MDD) 표시
+- FR33: Epic 4 - 백테스트 결과 샤프 비율 표시
+- FR34: Epic 4 - 백테스트 결과 진입/청산 포인트(액션 히스토리) 표시
+- FR35: Epic 4 - 백테스트 결과 블록체인 검증
+- FR36: Epic 4 - 검증 뱃지 표시
 
 #### 전략 마켓플레이스 (Strategy Marketplace) - Epic 5
-- FR28: Epic 5 - 전략 템플릿 라이브러리 탐색
-- FR29: Epic 5 - 카테고리별 전략 필터링 (RSI, MACD, Moving Average)
+- FR37: Epic 5 - 전략 템플릿 라이브러리 탐색
+- FR38: Epic 5 - 카테고리별 전략 필터링 (RSI, MACD, Moving Average)
 - FR30: Epic 5 - 템플릿 백테스트 결과 미리보기
 - FR31: Epic 5 - 공개 전략 검색
 - FR32: Epic 5 - 원클릭 전략 복제
@@ -1099,7 +1108,12 @@ Sothat 지갑을 변경하거나 로그아웃할 수 있다.
 
 사용자가 직관적인 노드-엣지 에디터로 거래 전략을 시각적으로 구성하고 저장할 수 있습니다. React Flow 기반 노드-엣지 에디터, 드래그 앤 드롭 노드 추가/삭제/연결, 시장 데이터 노드(가격, 거래량), 기술적 지표 노드(RSI, MACD, Moving Average), 매수/매도 액션 노드(분할 매수/매도 포함), 리스크 관리 노드(Stop Loss, Take Profit), 전략 로컬 저장, JSON export/import, 전략 이름 및 설명 수정 기능을 제공합니다. **고급 기능: 조건부 분기(If-Then-Else), 순환매(Rebalancing), Loop 구조를 지원하는 알고트레이딩 플랫폼입니다.**
 
-**FRs covered:** FR9, FR10, FR11, FR12, FR13, FR14, FR15, FR16, FR17
+**핵심 가치 제공:**
+- **프리셋 시스템**: DCA 마틴게일(10단), RSI 시그널 봇 등 원클릭 전략 로드로 진입장벽 해소
+- **LLM 대화형 전략 구축**: 자연어로 노드 생성/수정/삭제/연결 가능, 코딩 없는 전략 구성
+- **하이브리드 워크플로우**: 프리셋 → LLM 수정 → 수동 수정 등 자유로운 전략 구성
+
+**FRs covered:** FR9, FR10, FR11, FR12, FR13, FR14, FR15, FR16, FR17, FR18, FR19, FR20, FR21, FR22, FR23, FR24, FR25, FR26
 
 ---
 
