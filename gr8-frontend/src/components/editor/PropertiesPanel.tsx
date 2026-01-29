@@ -305,6 +305,9 @@ export function PropertiesPanel() {
       </div>
     );
   };
+
+  // Render MarketDataNode specific UI
+  const renderMarketDataProperties = () => {
     if (!isMarketDataNode) return null;
 
     const { exchange, dataType, symbol, timeframe } = nodeData.config;
