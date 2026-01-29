@@ -144,9 +144,9 @@ export function BacktestPanel() {
         </div>
 
         {/* Performance Metrics */}
-        <div className="space-y-3"
-        {/* ROI */}
-        <div className="flex justify-between items-center">
+        <div className="space-y-3">
+          {/* ROI */}
+          <div className="flex justify-between items-center">
           <span className="text-sm text-gray-400">총 수익률 (ROI)</span>
           <span className={`text-lg font-bold ${results.roi >= 0 ? 'text-green-400' : 'text-red-400'}`}>
             {results.roi.toFixed(2)}%
