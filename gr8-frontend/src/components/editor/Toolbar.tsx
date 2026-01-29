@@ -12,6 +12,7 @@ export function Toolbar() {
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showLoadModal, setShowLoadModal] = useState(false);
   const navigate = useNavigate();
+  const { nodes, edges, setNodes, setEdges } = useEditorStore();
 
   const handleSave = () => {
     setShowSaveModal(true);
@@ -19,6 +20,54 @@ export function Toolbar() {
 
   const handleLoad = () => {
     setShowLoadModal(true);
+  };
+
+  const handleExport = () => {
+    if (nodes.length === 0) {
+      toast.error('내보낼 전략이 없습니다');
+      return;
+    }
+
+    const name = prompt('전략 이름을 입력하세요:', '내 전략');
+    if (!name) return;
+
+    try {
+      exportCurrentStrategy(name, nodes, edges);
+      toast.success('전략이 JSON 파일로 내보내졌습니다');
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast.error('내보내기에 실패했습니다');
+    }
+  };
+
+  const handleImport = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      try {
+        const result = await importStrategyJSON(file);
+        if (result.success && result.data) {
+          if (nodes.length > 0) {
+            const confirm = window.confirm('기존 전략을 덮어쓰시겠습니까?');
+            if (!confirm) return;
+          }
+
+          setNodes(result.data.nodes);
+          setEdges(result.data.edges);
+          toast.success(`전략 "${result.data.metadata.name}"을 불러왔습니다`);
+        } else {
+          toast.error(result.error || '파일을 불러올 수 없습니다');
+        }
+      } catch (error) {
+        console.error('Import failed:', error);
+        toast.error('가져오기에 실패했습니다');
+      }
+    };
+    input.click();
   };
 
   const handleRun = () => {
