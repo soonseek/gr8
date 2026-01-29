@@ -107,13 +107,14 @@ export function WalletSelectorModal({
   ];
 
   const handleWalletSelect = async (walletType: string) => {
+    console.log('🔵 handleWalletSelect called with:', walletType);
     setSelectedWallet(walletType);
     
-    console.log('Wallet selected:', walletType);
-    console.log('Available connectors:', connectors.map(c => ({ id: c.id, name: c.name })));
+    console.log('🔵 Available connectors:', connectors.map(c => ({ id: c.id, name: c.name })));
 
     // Case 3: Trust Wallet (WalletConnect only - mobile app)
     if (walletType === 'trust') {
+      console.log('🔵 Trust Wallet selected, calling onTrustWalletSelect');
       if (onTrustWalletSelect) {
         onTrustWalletSelect();
       }
@@ -121,59 +122,62 @@ export function WalletSelectorModal({
     }
 
     // Find connector for wagmi wallets
-    const connector = connectors.find((c) => c.id === walletType);
+    let connector = connectors.find((c) => c.id === walletType);
+    
+    console.log('🔵 Connector found:', connector?.id, connector?.name);
     
     if (!connector) {
-      console.error(`Connector not found for ${walletType}`);
-      console.log('Trying alternative: looking for "injected" or "metaMask"');
+      console.log('🔴 Connector not found for', walletType);
+      console.log('🔵 Trying alternative connectors...');
       
       // Try alternative connector names
-      const altConnector = connectors.find((c) => 
+      connector = connectors.find((c) => 
         c.id === 'io.metamask' || 
-        c.id === 'metaMask' || 
+        c.id === 'metaMask' ||
+        c.id === 'metaMaskSDK' ||
+        c.type === 'injected' ||
         c.name?.toLowerCase().includes('metamask')
       );
       
-      if (altConnector) {
-        console.log('Found alternative connector:', altConnector.id);
-        try {
-          await connect({ connector: altConnector });
-          onClose();
-          return;
-        } catch (error) {
-          console.error('Alternative connection failed:', error);
-        }
+      if (connector) {
+        console.log('✅ Found alternative connector:', { id: connector.id, name: connector.name, type: connector.type });
+      } else {
+        console.log('🔴 No alternative connector found');
+        console.log('🔵 All available connectors:', connectors);
+        toast.error('MetaMask connector를 찾을 수 없습니다. MetaMask가 설치되어 있는지 확인해주세요.');
+        return;
       }
-      
-      return;
     }
 
     try {
       // WalletConnect connection - delegate to parent
       if (walletType === 'walletConnect') {
+        console.log('🔵 WalletConnect selected, calling onWalletConnectSelect');
         onWalletConnectSelect();
         return;
       }
 
       // MetaMask and other injected wallets
-      console.log('Connecting with connector:', connector.id);
-      await connect({ connector });
+      console.log('🔵 Connecting with connector:', connector.id, connector.name);
+      const result = await connect({ connector });
+      console.log('✅ Connection successful:', result);
       onClose();
+      toast.success('지갑 연결 성공!');
     } catch (error: unknown) {
-      console.error('Wallet connection failed:', error);
+      console.error('🔴 Wallet connection failed:', error);
 
       // 에러 메시지 결정
       let errorMessage = '지갑 연결에 실패했습니다';
 
       if (error instanceof Error) {
+        console.error('🔴 Error message:', error.message);
         // User rejected request (error code 4001)
         if (error.message.includes('4001')) {
           errorMessage = '연결이 거부되었습니다';
         }
       }
 
-      // Show error (could be improved with toast in future)
-      console.error(errorMessage);
+      toast.error(errorMessage);
       setSelectedWallet(null);
     }
   };
