@@ -1,10 +1,6 @@
 [
   {
-    "content": "Epic 2: Web3 기능 완성",
-    "status": "completed"
-  },
-  {
     "content": "Story 3-14: LLM 대화형 전략 구축 - 기본 UI 구현",
-    "status": "in_progress"
+    "status": "completed"
   }
 ]
