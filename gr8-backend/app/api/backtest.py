@@ -223,12 +223,6 @@ async def get_backtest_result(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-        await db.rollback()
-        return BacktestResponse(
-            success=False,
-            error=str(e),
-        )
-
 
 @router.get("/market-data/{exchange}/{symbol}")
 async def get_market_data(
