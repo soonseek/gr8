@@ -63,7 +63,11 @@ export function PropertiesPanel() {
   // Check node type
   const isMarketDataNode = selectedNode.type === 'market_data';
   const isIndicatorNode = selectedNode.type === 'indicator';
-  const nodeData = selectedNode.data as MarketDataNode['data'] | IndicatorNode['data'];
+  const isActionNode = selectedNode.type === 'action';
+  const isConditionNode = selectedNode.type === 'condition';
+  const isLoopNode = selectedNode.type === 'loop';
+  const isRiskManagementNode = selectedNode.type === 'risk_mgmt';
+  const nodeData = selectedNode.data as any;
 
   // Handle MarketData config update
   const handleConfigUpdate = (key: string, value: string) => {
