@@ -1,22 +1,10 @@
 [
   {
     "content": "Epic 4-5: 백테스트 결과 시각화 차트 추가",
+    "status": "completed"
+  },
+  {
+    "content": "최종 테스트 및 검증",
     "status": "in_progress"
-  },
-  {
-    "content": "Epic 4-6: 백테스트 결과 DB 저장",
-    "status": "pending"
-  },
-  {
-    "content": "Epic 4-7~4-10: 백테스트 히스토리 관리 UI",
-    "status": "pending"
-  },
-  {
-    "content": "Story 3-14: LLM 대화형 전략 구축 구현",
-    "status": "pending"
-  },
-  {
-    "content": "Epic 2: Web3 나머지 기능 완성",
-    "status": "pending"
   }
 ]
