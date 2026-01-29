@@ -433,6 +433,20 @@ export function PropertiesPanel() {
             {/* Market Data Configuration */}
             {renderMarketDataProperties()}
           </>
+        ) : isIndicatorNode ? (
+          <>
+            {/* Node Type Badge */}
+            <div className="flex items-center gap-2 px-3 py-2 bg-purple-900/20 border border-purple-700/30 rounded-lg">
+              <span className="text-lg">📈</span>
+              <div>
+                <div className="text-sm font-semibold text-purple-300">기술적 지표 노드</div>
+                <div className="text-xs text-gray-400">Technical Indicator</div>
+              </div>
+            </div>
+
+            {/* Indicator Configuration */}
+            {renderIndicatorProperties()}
+          </>
         ) : (
           <>
             {/* Node Type */}
