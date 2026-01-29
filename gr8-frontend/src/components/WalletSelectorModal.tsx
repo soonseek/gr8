@@ -90,6 +90,9 @@ export function WalletSelectorModal({
 
   const handleWalletSelect = async (walletType: string) => {
     setSelectedWallet(walletType);
+    
+    console.log('Wallet selected:', walletType);
+    console.log('Available connectors:', connectors.map(c => ({ id: c.id, name: c.name })));
 
     // Case 3: Trust Wallet (WalletConnect only - mobile app)
     if (walletType === 'trust') {
@@ -101,7 +104,31 @@ export function WalletSelectorModal({
 
     // Find connector for wagmi wallets
     const connector = connectors.find((c) => c.id === walletType);
-    if (!connector) return;
+    
+    if (!connector) {
+      console.error(`Connector not found for ${walletType}`);
+      console.log('Trying alternative: looking for "injected" or "metaMask"');
+      
+      // Try alternative connector names
+      const altConnector = connectors.find((c) => 
+        c.id === 'io.metamask' || 
+        c.id === 'metaMask' || 
+        c.name?.toLowerCase().includes('metamask')
+      );
+      
+      if (altConnector) {
+        console.log('Found alternative connector:', altConnector.id);
+        try {
+          await connect({ connector: altConnector });
+          onClose();
+          return;
+        } catch (error) {
+          console.error('Alternative connection failed:', error);
+        }
+      }
+      
+      return;
+    }
 
     try {
       // WalletConnect connection - delegate to parent
@@ -111,6 +138,7 @@ export function WalletSelectorModal({
       }
 
       // MetaMask and other injected wallets
+      console.log('Connecting with connector:', connector.id);
       await connect({ connector });
       onClose();
     } catch (error: unknown) {
