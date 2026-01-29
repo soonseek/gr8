@@ -219,6 +219,9 @@ export function StrategyEditor() {
 
       {/* StatusBar */}
       <StatusBar />
+
+      {/* Backtest Panel - Floating button */}
+      <BacktestPanel />
     </div>
   );
 }
