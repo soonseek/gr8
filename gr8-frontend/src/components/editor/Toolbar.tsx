@@ -72,6 +72,25 @@ export function Toolbar() {
     input.click();
   };
 
+  const handleLoadPreset = (presetId: string) => {
+    const presets = getAllPresets();
+    const preset = presets.find((p) => p.id === presetId);
+    if (!preset) {
+      toast.error('프리셋을 찾을 수 없습니다');
+      return;
+    }
+
+    if (nodes.length > 0) {
+      const confirm = window.confirm(`"${preset.name}" 프리셋을 로드하면 기존 전략이 초기화됩니다. 계속하시겠습니까?`);
+      if (!confirm) return;
+    }
+
+    setNodes(preset.nodes);
+    setEdges(preset.edges);
+    toast.success(`프리셋 "${preset.name}"을 로드했습니다`);
+    setShowPresetMenu(false);
+  };
+
   const handleRun = () => {
     // TODO: Implement run functionality (Story 4.3)
     toast('백테스팅 실행 기능은 Story 4.3에서 구현 예정입니다', { icon: 'ℹ️' });
