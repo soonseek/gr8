@@ -6,7 +6,6 @@ import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useEditorStore } from '@/stores/editorStore';
 import axios from 'axios';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface BacktestResults {
   initial_capital: number;
