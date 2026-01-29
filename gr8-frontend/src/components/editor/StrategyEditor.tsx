@@ -222,8 +222,10 @@ export function StrategyEditor() {
       {/* StatusBar */}
       <StatusBar />
 
-      {/* Backtest Panel - Floating button */}
+      {/* Floating Panels */}
       <BacktestPanel />
+      <LLMStrategyPanel />
+      <ChainSwitcher />
     </div>
   );
 }
