@@ -853,6 +853,62 @@ export function PropertiesPanel() {
             {/* Indicator Configuration */}
             {renderIndicatorProperties()}
           </>
+        ) : isActionNode ? (
+          <>
+            {/* Node Type Badge */}
+            <div className="flex items-center gap-2 px-3 py-2 bg-green-900/20 border border-green-700/30 rounded-lg">
+              <span className="text-lg">{(nodeData as ActionNode['data']).config.actionType === ActionType.BUY ? '💰' : '💸'}</span>
+              <div>
+                <div className="text-sm font-semibold text-green-300">액션 노드</div>
+                <div className="text-xs text-gray-400">Buy/Sell Action</div>
+              </div>
+            </div>
+
+            {/* Action Configuration */}
+            {renderActionProperties()}
+          </>
+        ) : isConditionNode ? (
+          <>
+            {/* Node Type Badge */}
+            <div className="flex items-center gap-2 px-3 py-2 bg-yellow-900/20 border border-yellow-700/30 rounded-lg">
+              <span className="text-lg">🔀</span>
+              <div>
+                <div className="text-sm font-semibold text-yellow-300">조건 노드</div>
+                <div className="text-xs text-gray-400">Conditional Logic</div>
+              </div>
+            </div>
+
+            {/* Condition Configuration */}
+            {renderConditionProperties()}
+          </>
+        ) : isLoopNode ? (
+          <>
+            {/* Node Type Badge */}
+            <div className="flex items-center gap-2 px-3 py-2 bg-orange-900/20 border border-orange-700/30 rounded-lg">
+              <span className="text-lg">🔁</span>
+              <div>
+                <div className="text-sm font-semibold text-orange-300">Loop 노드</div>
+                <div className="text-xs text-gray-400">Loop Structure</div>
+              </div>
+            </div>
+
+            {/* Loop Configuration */}
+            {renderLoopProperties()}
+          </>
+        ) : isRiskManagementNode ? (
+          <>
+            {/* Node Type Badge */}
+            <div className="flex items-center gap-2 px-3 py-2 bg-pink-900/20 border border-pink-700/30 rounded-lg">
+              <span className="text-lg">🛡️</span>
+              <div>
+                <div className="text-sm font-semibold text-pink-300">리스크 관리 노드</div>
+                <div className="text-xs text-gray-400">Risk Management</div>
+              </div>
+            </div>
+
+            {/* Risk Management Configuration */}
+            {renderRiskManagementProperties()}
+          </>
         ) : (
           <>
             {/* Node Type */}
