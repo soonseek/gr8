@@ -1,26 +1,10 @@
 [
   {
-    "content": "Epic 2-4: 체인 확인 및 자동 전환 (Monad L1)",
+    "content": "Epic 2: Web3 기능 완성",
+    "status": "completed"
+  },
+  {
+    "content": "Story 3-14: LLM 대화형 전략 구축 - 기본 UI 구현",
     "status": "in_progress"
-  },
-  {
-    "content": "Epic 2-5: 지갑 주소 표시 및 사용자 식별",
-    "status": "pending"
-  },
-  {
-    "content": "Epic 2-6: 세션 유지 (localStorage + Zustand)",
-    "status": "pending"
-  },
-  {
-    "content": "Epic 2-7: 지갑 연결 해제 및 재연결",
-    "status": "pending"
-  },
-  {
-    "content": "Story 3-14: LLM 대화형 전략 구축 구현",
-    "status": "pending"
-  },
-  {
-    "content": "Epic 4: DB 설정 및 히스토리 기능",
-    "status": "pending"
   }
 ]
