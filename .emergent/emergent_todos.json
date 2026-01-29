@@ -1,10 +1,6 @@
 [
   {
-    "content": "Clerk 통합 취소 - 현재 시스템 유지",
-    "status": "completed"
-  },
-  {
     "content": "MetaMask 지갑 연결 문제 해결",
-    "status": "in_progress"
+    "status": "completed"
   }
 ]
