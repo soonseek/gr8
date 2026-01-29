@@ -13,6 +13,9 @@ export default defineConfig({
       'localhost',
     ],
   },
+  optimizeDeps: {
+    include: ['react-is', 'recharts'],
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
