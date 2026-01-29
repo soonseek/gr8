@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routers import auth, market_data
-from app.api import admin
+from app.api import admin, backtest
 
 # Configure logging
 logging.basicConfig(
