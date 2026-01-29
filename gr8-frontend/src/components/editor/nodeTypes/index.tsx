@@ -190,6 +190,25 @@ MarketDataNodeComponent.displayName = 'MarketDataNodeComponent';
  */
 export const IndicatorNodeComponent = memo(({ data, selected }: NodeProps) => {
   const nodeData = data as IndicatorNode['data'];
+  
+  // Get icon based on indicator type
+  const getIndicatorIcon = (type: string): string => {
+    switch (type) {
+      case 'RSI':
+        return '📊';
+      case 'MACD':
+        return '📉';
+      case 'SMA':
+      case 'EMA':
+        return '📈';
+      case 'BOLLINGER_BANDS':
+        return '📊';
+      default:
+        return '📈';
+    }
+  };
+
+  const icon = getIndicatorIcon(nodeData.config.indicatorType);
 
   return (
     <div
@@ -201,8 +220,8 @@ export const IndicatorNodeComponent = memo(({ data, selected }: NodeProps) => {
       <Handle type="target" position={Position.Top} className="w-3 h-3" />
 
       <div className="flex items-center gap-2 mb-2">
-        <div className="w-8 h-8 rounded bg-purple-600 flex items-center justify-center text-white font-bold">
-          I
+        <div className="w-8 h-8 rounded bg-purple-600 flex items-center justify-center text-white text-lg">
+          {icon}
         </div>
         <div>
           <div className="font-bold text-white text-sm">{nodeData.label}</div>
