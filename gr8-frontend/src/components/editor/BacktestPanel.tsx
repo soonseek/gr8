@@ -147,80 +147,81 @@ export function BacktestPanel() {
         <div className="space-y-3">
           {/* ROI */}
           <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-400">총 수익률 (ROI)</span>
-          <span className={`text-lg font-bold ${results.roi >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-            {results.roi.toFixed(2)}%
-          </span>
-        </div>
+            <span className="text-sm text-gray-400">총 수익률 (ROI)</span>
+            <span className={`text-lg font-bold ${results.roi >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              {results.roi.toFixed(2)}%
+            </span>
+          </div>
 
-        {/* Return */}
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-400">수익금</span>
-          <span className={`text-sm font-medium ${results.total_return >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-            ${results.total_return.toFixed(2)}
-          </span>
-        </div>
+          {/* Return */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-400">수익금</span>
+            <span className={`text-sm font-medium ${results.total_return >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              ${results.total_return.toFixed(2)}
+            </span>
+          </div>
 
-        {/* Capital */}
-        <div className="flex justify-between items-center text-xs text-gray-500">
-          <span>초기 자본</span>
-          <span>${results.initial_capital.toFixed(2)}</span>
-        </div>
-        <div className="flex justify-between items-center text-xs text-gray-500">
-          <span>최종 자본</span>
-          <span>${results.final_capital.toFixed(2)}</span>
-        </div>
+          {/* Capital */}
+          <div className="flex justify-between items-center text-xs text-gray-500">
+            <span>초기 자본</span>
+            <span>${results.initial_capital.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between items-center text-xs text-gray-500">
+            <span>최종 자본</span>
+            <span>${results.final_capital.toFixed(2)}</span>
+          </div>
 
-        <div className="border-t border-gray-700 pt-3 mt-3" />
+          <div className="border-t border-gray-700 pt-3 mt-3" />
 
-        {/* MDD */}
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-400">최대 낙폭 (MDD)</span>
-          <span className="text-sm font-medium text-red-400">
-            {results.max_drawdown.toFixed(2)}%
-          </span>
+          {/* MDD */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-400">최대 낙폭 (MDD)</span>
+            <span className="text-sm font-medium text-red-400">
+              {results.max_drawdown.toFixed(2)}%
+            </span>
+          </div>
+
+          {/* Sharpe Ratio */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-400">샤프 비율</span>
+            <span className="text-sm font-medium text-gray-100">
+              {results.sharpe_ratio.toFixed(2)}
+            </span>
+          </div>
+
+          {/* Win Rate */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-400">승률</span>
+            <span className="text-sm font-medium text-blue-400">
+              {results.win_rate.toFixed(2)}%
+            </span>
+          </div>
+
+          {/* Total Trades */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-400">총 거래 횟수</span>
+            <span className="text-sm font-medium text-gray-100">
+              {results.total_trades}
+            </span>
+          </div>
+
+          {/* Profit Factor */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-400">손익비</span>
+            <span className="text-sm font-medium text-yellow-400">
+              {results.profit_factor.toFixed(2)}
+            </span>
+          </div>
+
+          {/* Action Button */}
+          <button
+            onClick={handleRunBacktest}
+            disabled={isRunning}
+            className="w-full mt-4 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium"
+          >
+            다시 실행
+          </button>
         </div>
-
-        {/* Sharpe Ratio */}
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-400">샤프 비율</span>
-          <span className="text-sm font-medium text-gray-100">
-            {results.sharpe_ratio.toFixed(2)}
-          </span>
-        </div>
-
-        {/* Win Rate */}
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-400">승률</span>
-          <span className="text-sm font-medium text-blue-400">
-            {results.win_rate.toFixed(2)}%
-          </span>
-        </div>
-
-        {/* Total Trades */}
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-400">총 거래 횟수</span>
-          <span className="text-sm font-medium text-gray-100">
-            {results.total_trades}
-          </span>
-        </div>
-
-        {/* Profit Factor */}
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-400">손익비</span>
-          <span className="text-sm font-medium text-yellow-400">
-            {results.profit_factor.toFixed(2)}
-          </span>
-        </div>
-
-        {/* Action Button */}
-        <button
-          onClick={handleRunBacktest}
-          disabled={isRunning}
-          className="w-full mt-4 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium"
-        >
-          다시 실행
-        </button>
       </div>
     </div>
   );
