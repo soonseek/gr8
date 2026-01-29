@@ -65,6 +65,21 @@ export function WalletSelectorModal({
   const { connect, connectors, isPending } = useConnect();
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
 
+  // Debug: Log connectors when modal opens
+  console.log('=== WalletSelectorModal Rendered ===');
+  console.log('Available connectors:', connectors.map(c => ({ 
+    id: c.id, 
+    name: c.name, 
+    type: c.type,
+    ready: c.ready 
+  })));
+  console.log('isPending:', isPending);
+  console.log('Total connectors:', connectors.length);
+
+  // Check if MetaMask is installed
+  const hasMetaMask = typeof window !== 'undefined' && window.ethereum?.isMetaMask;
+  console.log('MetaMask installed:', hasMetaMask);
+
   // Explicit wallet list - only show 3 wallets: MetaMask, Trust Wallet, WalletConnect
   // Don't use wagmi's connectors list to avoid duplicates and unwanted wallets
   const availableWallets = [
@@ -73,18 +88,21 @@ export function WalletSelectorModal({
       name: 'MetaMask',
       description: '브라우저 확장프로그램',
       icon: '🦊',
+      disabled: !hasMetaMask,
     },
     {
       id: 'trust',
       name: 'Trust Wallet',
       description: '모바일 앱 (WalletConnect)',
       icon: '🛡️',
+      disabled: false,
     },
     {
       id: 'walletConnect',
       name: 'WalletConnect',
       description: '100+ 지갑 지원 (OKX, Coinbase, Rainbow 등)',
       icon: '🔗',
+      disabled: false,
     },
   ];
 
