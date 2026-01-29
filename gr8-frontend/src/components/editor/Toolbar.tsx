@@ -123,6 +123,28 @@ export function Toolbar() {
           로드
         </button>
 
+        <div className="h-6 w-px bg-gray-600" />
+
+        <button
+          onClick={handleExport}
+          className="flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium"
+          title="JSON으로 내보내기"
+        >
+          <Download className="w-4 h-4" />
+          <span>내보내기</span>
+        </button>
+
+        <button
+          onClick={handleImport}
+          className="flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium"
+          title="JSON 가져오기"
+        >
+          <Upload className="w-4 h-4" />
+          <span>가져오기</span>
+        </button>
+
+        <div className="h-6 w-px bg-gray-600" />
+
         <button
           onClick={handleRun}
           className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium"
@@ -137,10 +159,6 @@ export function Toolbar() {
           초기화
         </button>
       </div>
-    </div>
-  );
-}
-
 
       {/* Modals */}
       <SaveStrategyModal 
@@ -151,4 +169,8 @@ export function Toolbar() {
         isOpen={showLoadModal} 
         onClose={() => setShowLoadModal(false)} 
       />
+    </div>
+  );
+}
+
 
