@@ -129,6 +129,42 @@ export function Toolbar() {
 
       <div className="flex items-center gap-3">
         <button
+          onClick={() => setShowPresetMenu(!showPresetMenu)}
+          className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors text-sm font-medium relative"
+        >
+          <Sparkles className="w-4 h-4" />
+          <span>프리셋</span>
+        </button>
+
+        {showPresetMenu && (
+          <div className="absolute top-16 right-6 bg-[#1a1a1a] border border-gray-700 rounded-lg shadow-xl z-50 w-[300px]">
+            <div className="p-3 border-b border-gray-700">
+              <h3 className="text-sm font-semibold text-gray-100">프리셋 전략</h3>
+              <p className="text-xs text-gray-500 mt-1">원클릭으로 전략 로드</p>
+            </div>
+            <div className="p-2 space-y-1">
+              {getAllPresets().map((preset) => (
+                <button
+                  key={preset.id}
+                  onClick={() => handleLoadPreset(preset.id)}
+                  className="w-full text-left p-3 bg-[#0a0a0a] hover:bg-gray-800 rounded-lg transition-colors"
+                >
+                  <div className="font-medium text-sm text-gray-100">{preset.name}</div>
+                  <div className="text-xs text-gray-500 mt-1">{preset.description}</div>
+                  <div className="text-xs text-purple-400 mt-1">
+                    {preset.category === 'beginner' && '초급'}
+                    {preset.category === 'intermediate' && '중급'}
+                    {preset.category === 'advanced' && '고급'}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="h-6 w-px bg-gray-600" />
+
+        <button
           onClick={handleSave}
           disabled={isLoading}
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium"
