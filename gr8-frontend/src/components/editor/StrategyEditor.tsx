@@ -43,6 +43,7 @@ import { Toolbar } from './Toolbar';
 import { NodePalette } from './NodePalette';
 import { PropertiesPanel } from './PropertiesPanel';
 import { StatusBar } from './StatusBar';
+import { BacktestPanel } from './BacktestPanel';
 import { nodeTypes } from './nodeTypes';
 
 
