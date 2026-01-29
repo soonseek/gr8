@@ -105,6 +105,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(admin.router)
 app.include_router(market_data.router)
+app.include_router(backtest.router)
 
 
 @app.get("/", tags=["Root"])
