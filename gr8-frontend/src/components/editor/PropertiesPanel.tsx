@@ -4,7 +4,9 @@
 
 import { useState } from 'react';
 import { useEditorStore } from '@/stores/editorStore';
-import type { MarketDataNode } from '@/types/nodes';
+import type { MarketDataNode, IndicatorNode } from '@/types/nodes';
+import { IndicatorType } from '@/types/nodes';
+import { DEFAULT_INDICATOR_PARAMS, INDICATOR_LABELS } from '@/types/indicators';
 
 // Market data configuration options
 const EXCHANGE_OPTIONS = [
