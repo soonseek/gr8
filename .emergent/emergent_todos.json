@@ -1,22 +1,10 @@
 [
   {
-    "content": "Clerk SDK 설치 및 기본 설정",
+    "content": "Clerk 통합 취소 - 현재 시스템 유지",
+    "status": "completed"
+  },
+  {
+    "content": "MetaMask 지갑 연결 문제 해결",
     "status": "in_progress"
-  },
-  {
-    "content": "Clerk Web3 지갑 인증 통합",
-    "status": "pending"
-  },
-  {
-    "content": "기존 Web3 컴포넌트 Clerk로 교체",
-    "status": "pending"
-  },
-  {
-    "content": "백엔드 Clerk JWT 검증 추가",
-    "status": "pending"
-  },
-  {
-    "content": "최종 테스트 및 검증",
-    "status": "pending"
   }
 ]
