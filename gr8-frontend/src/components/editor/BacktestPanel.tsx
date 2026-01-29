@@ -88,9 +88,15 @@ export function BacktestPanel() {
 
   if (!results) return null;
 
+  // Prepare chart data
+  const chartData = results.equity_curve.map((value, index) => ({
+    index,
+    value,
+  }));
+
   return (
-    <div className="fixed bottom-4 right-4 bg-[#1a1a1a] border border-gray-700 rounded-lg shadow-xl z-40 w-[400px]">
-      <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+    <div className="fixed bottom-4 right-4 bg-[#1a1a1a] border border-gray-700 rounded-lg shadow-xl z-40 w-[500px] max-h-[600px] overflow-y-auto">
+      <div className="p-4 border-b border-gray-700 flex items-center justify-between sticky top-0 bg-[#1a1a1a]">
         <h3 className="text-lg font-bold text-gray-100">백테스트 결과</h3>
         <button
           onClick={() => setShowResults(false)}
@@ -100,7 +106,45 @@ export function BacktestPanel() {
         </button>
       </div>
 
-      <div className="p-4 space-y-3">
+      <div className="p-4 space-y-4">
+        {/* Equity Curve Chart */}
+        <div className="bg-[#0a0a0a] border border-gray-700 rounded-lg p-4">
+          <h4 className="text-sm font-semibold text-gray-100 mb-3">수익 곡선 (Equity Curve)</h4>
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+              <XAxis 
+                dataKey="index" 
+                stroke="#9CA3AF"
+                style={{ fontSize: '10px' }}
+              />
+              <YAxis 
+                stroke="#9CA3AF"
+                style={{ fontSize: '10px' }}
+                tickFormatter={(value) => `$${value.toFixed(0)}`}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#1a1a1a', 
+                  border: '1px solid #374151',
+                  borderRadius: '8px',
+                  fontSize: '12px'
+                }}
+                formatter={(value: number) => [`$${value.toFixed(2)}`, '자본']}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="value" 
+                stroke={results.roi >= 0 ? '#10B981' : '#EF4444'}
+                strokeWidth={2}
+                dot={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Performance Metrics */}
+        <div className="space-y-3"
         {/* ROI */}
         <div className="flex justify-between items-center">
           <span className="text-sm text-gray-400">총 수익률 (ROI)</span>
