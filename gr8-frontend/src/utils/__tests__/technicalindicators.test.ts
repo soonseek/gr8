@@ -77,9 +77,9 @@ describe('technicalindicators library', () => {
     };
     const result = MACD.calculate(input);
     
-    const firstResult = result[0] as any;
+    const lastResult = result[result.length - 1] as any;
     // 히스토그램 = MACD - signal
-    const expectedHistogram = firstResult.MACD - firstResult.signal;
-    expect(Math.abs(firstResult.histogram - expectedHistogram)).toBeLessThan(0.0001);
+    const expectedHistogram = lastResult.MACD - lastResult.signal;
+    expect(Math.abs(lastResult.histogram - expectedHistogram)).toBeLessThan(0.0001);
   });
 });
