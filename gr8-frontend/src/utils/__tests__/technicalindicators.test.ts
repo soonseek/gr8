@@ -51,10 +51,10 @@ describe('technicalindicators library', () => {
     expect(result.length).toBeGreaterThan(0);
     
     // MACD는 MACD, signal, histogram 값을 포함
-    const firstResult = result[0] as any;
-    expect(firstResult.MACD).toBeDefined();
-    expect(firstResult.signal).toBeDefined();
-    expect(firstResult.histogram).toBeDefined();
+    const lastResult = result[result.length - 1] as any;
+    expect(lastResult.MACD).toBeDefined();
+    expect(lastResult.signal).toBeDefined();
+    expect(lastResult.histogram).toBeDefined();
   });
 
   it('RSI 값이 기대한 범위 내에 있다', () => {
