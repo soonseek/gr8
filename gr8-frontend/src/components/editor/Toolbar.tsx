@@ -12,6 +12,7 @@ export function Toolbar() {
   const [isLoading, setIsLoading] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showLoadModal, setShowLoadModal] = useState(false);
+  const [showPresetMenu, setShowPresetMenu] = useState(false);
   const navigate = useNavigate();
   const { nodes, edges, setNodes, setEdges } = useEditorStore();
 
