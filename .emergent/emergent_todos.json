@@ -1,11 +1,11 @@
 [
   {
     "content": "Story 3-4-deps-1: technicalindicators 라이브러리 설치 및 TypeScript 타입 정의",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Story 3-4: 기술적 지표 노드 구현 (RSI, MACD, MA)",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Story 3-5: 기본 매수/매도 액션 노드 구현",
