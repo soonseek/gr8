@@ -119,6 +119,103 @@ async def run_backtest(
         )
 
     except Exception as e:
+
+
+@router.get("/history")
+async def get_backtest_history(
+    db: AsyncSession = Depends(get_db),
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    limit: int = 20,
+):
+    """
+    Get user's backtest history
+    """
+    from sqlalchemy import select, desc
+    
+    try:
+        wallet_address = current_user.get('wallet_address', 'anonymous')
+        
+        query = select(BacktestResult).where(
+            BacktestResult.user_wallet == wallet_address
+        ).order_by(desc(BacktestResult.created_at)).limit(limit)
+        
+        result = await db.execute(query)
+        backtests = result.scalars().all()
+        
+        return {
+            "success": True,
+            "backtests": [
+                {
+                    "id": bt.id,
+                    "strategy_name": bt.strategy_name,
+                    "exchange": bt.exchange,
+                    "symbol": bt.symbol,
+                    "timeframe": bt.timeframe,
+                    "roi": bt.roi,
+                    "max_drawdown": bt.max_drawdown,
+                    "total_trades": bt.total_trades,
+                    "win_rate": bt.win_rate,
+                    "created_at": bt.created_at.isoformat() if bt.created_at else None,
+                }
+                for bt in backtests
+            ],
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/result/{backtest_id}")
+async def get_backtest_result(
+    backtest_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: Dict[str, Any] = Depends(get_current_user),
+):
+    """
+    Get detailed backtest result by ID
+    """
+    from sqlalchemy import select
+    
+    try:
+        query = select(BacktestResult).where(BacktestResult.id == backtest_id)
+        result = await db.execute(query)
+        backtest = result.scalar_one_or_none()
+        
+        if not backtest:
+            raise HTTPException(status_code=404, detail="Backtest not found")
+        
+        # Check ownership
+        if backtest.user_wallet != current_user.get('wallet_address', 'anonymous'):
+            raise HTTPException(status_code=403, detail="Not authorized")
+        
+        return {
+            "success": True,
+            "backtest": {
+                "id": backtest.id,
+                "strategy_name": backtest.strategy_name,
+                "strategy_data": backtest.strategy_data,
+                "exchange": backtest.exchange,
+                "symbol": backtest.symbol,
+                "timeframe": backtest.timeframe,
+                "initial_capital": backtest.initial_capital,
+                "final_capital": backtest.final_capital,
+                "total_return": backtest.total_return,
+                "roi": backtest.roi,
+                "max_drawdown": backtest.max_drawdown,
+                "sharpe_ratio": backtest.sharpe_ratio,
+                "total_trades": backtest.total_trades,
+                "win_rate": backtest.win_rate,
+                "profit_factor": backtest.profit_factor,
+                "trades": backtest.trades,
+                "equity_curve": backtest.equity_curve,
+                "execution_time_ms": backtest.execution_time_ms,
+                "created_at": backtest.created_at.isoformat() if backtest.created_at else None,
+            },
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
         await db.rollback()
         return BacktestResponse(
             success=False,
