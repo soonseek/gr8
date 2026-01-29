@@ -60,9 +60,10 @@ export function PropertiesPanel() {
     );
   }
 
-  // Check if this is a MarketDataNode
+  // Check node type
   const isMarketDataNode = selectedNode.type === 'market_data';
-  const nodeData = selectedNode.data as MarketDataNode['data'];
+  const isIndicatorNode = selectedNode.type === 'indicator';
+  const nodeData = selectedNode.data as MarketDataNode['data'] | IndicatorNode['data'];
 
   // Handle config update
   const handleConfigUpdate = (key: string, value: string) => {
