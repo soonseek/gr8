@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, Upload } from 'lucide-react';
+import { ArrowLeft, Download, Upload, Sparkles } from 'lucide-react';
 import { SaveStrategyModal } from './SaveStrategyModal';
 import { LoadStrategyModal } from './LoadStrategyModal';
 import { useEditorStore } from '@/stores/editorStore';
 import { exportCurrentStrategy, importStrategyJSON } from '@/services/strategyIO';
+import { getAllPresets } from '@/services/strategyPresets';
 
 export function Toolbar() {
   const [isLoading, setIsLoading] = useState(false);
