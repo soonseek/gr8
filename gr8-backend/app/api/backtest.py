@@ -1,17 +1,22 @@
 """
 Backtest API Router
 
-Provides endpoints for running backtests
+Provides endpoints for running backtests and managing results
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
+from sqlalchemy.ext.asyncio import AsyncSession
 import asyncio
+import uuid
 
 from app.backtest.engine import BacktestEngine
 from app.backtest.data_fetcher import DataFetcher
+from app.core.database import get_db
+from app.models.backtest import BacktestResult
+from app.auth.jwt_auth import get_current_user
 
 router = APIRouter(prefix="/api/backtest", tags=["backtest"])
 
