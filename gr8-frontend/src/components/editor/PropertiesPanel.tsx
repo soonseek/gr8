@@ -501,6 +501,320 @@ export function PropertiesPanel() {
     );
   };
 
+  // Render ActionNode specific UI
+  const renderActionProperties = () => {
+    if (!isActionNode) return null;
+
+    const actionData = nodeData as ActionNode['data'];
+    const { actionType, amount, splitCount, splitInterval } = actionData.config;
+
+    return (
+      <div className="space-y-4">
+        {/* Action Type Selection */}
+        <div>
+          <label className="block text-xs font-medium text-gray-400 mb-2">
+            액션 타입
+          </label>
+          <select
+            value={actionType}
+            onChange={(e) => handleActionConfigUpdate('actionType', e.target.value)}
+            className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-green-500 focus:outline-none"
+          >
+            <option value={ActionType.BUY}>매수 (BUY)</option>
+            <option value={ActionType.SELL}>매도 (SELL)</option>
+          </select>
+        </div>
+
+        {/* Amount */}
+        <div>
+          <label className="block text-xs font-medium text-gray-400 mb-2">
+            수량 (USDT)
+          </label>
+          <input
+            type="number"
+            min="1"
+            step="1"
+            value={amount || 100}
+            onChange={(e) => handleActionConfigUpdate('amount', e.target.value)}
+            className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-green-500 focus:outline-none"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            매수/매도할 금액 (USDT 기준)
+          </p>
+        </div>
+
+        {/* Split Count (Story 3.6) */}
+        <div>
+          <label className="block text-xs font-medium text-gray-400 mb-2">
+            분할 횟수 (선택사항)
+          </label>
+          <input
+            type="number"
+            min="1"
+            max="10"
+            value={splitCount || 1}
+            onChange={(e) => handleActionConfigUpdate('splitCount', e.target.value)}
+            className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-green-500 focus:outline-none"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            1회 = 일반 매수/매도, 2~10회 = 분할 매수/매도
+          </p>
+        </div>
+
+        {/* Split Interval */}
+        {splitCount && splitCount > 1 && (
+          <div>
+            <label className="block text-xs font-medium text-gray-400 mb-2">
+              분할 간격
+            </label>
+            <select
+              value={splitInterval || '1h'}
+              onChange={(e) => handleActionConfigUpdate('splitInterval', e.target.value)}
+              className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-green-500 focus:outline-none"
+            >
+              <option value="1m">1분</option>
+              <option value="5m">5분</option>
+              <option value="15m">15분</option>
+              <option value="1h">1시간</option>
+              <option value="4h">4시간</option>
+              <option value="1d">1일</option>
+            </select>
+          </div>
+        )}
+
+        {/* Info Box */}
+        <div className="px-3 py-2 bg-green-900/20 border border-green-700/30 rounded-lg">
+          <p className="text-xs text-green-300">
+            💡 <strong>팁:</strong> 분할 매수/매도로 시장 영향을 분산할 수 있습니다
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  // Render ConditionNode specific UI
+  const renderConditionProperties = () => {
+    if (!isConditionNode) return null;
+
+    const conditionData = nodeData as ConditionNode['data'];
+    const { operator, leftValue, rightValue } = conditionData.config;
+
+    return (
+      <div className="space-y-4">
+        {/* Operator Selection */}
+        <div>
+          <label className="block text-xs font-medium text-gray-400 mb-2">
+            비교 연산자
+          </label>
+          <select
+            value={operator}
+            onChange={(e) => handleConditionConfigUpdate('operator', e.target.value)}
+            className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-yellow-500 focus:outline-none"
+          >
+            <option value={ConditionOperator.GT}>&gt; (Greater Than)</option>
+            <option value={ConditionOperator.LT}>&lt; (Less Than)</option>
+            <option value={ConditionOperator.GTE}>&gt;= (Greater or Equal)</option>
+            <option value={ConditionOperator.LTE}>&lt;= (Less or Equal)</option>
+            <option value={ConditionOperator.EQ}>== (Equal)</option>
+            <option value={ConditionOperator.AND}>AND (논리곱)</option>
+            <option value={ConditionOperator.OR}>OR (논리합)</option>
+          </select>
+        </div>
+
+        {/* Left Value */}
+        <div>
+          <label className="block text-xs font-medium text-gray-400 mb-2">
+            좌측 값
+          </label>
+          <input
+            type="text"
+            placeholder="예: RSI 또는 70"
+            value={leftValue || ''}
+            onChange={(e) => handleConditionConfigUpdate('leftValue', e.target.value)}
+            className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-yellow-500 focus:outline-none"
+          />
+        </div>
+
+        {/* Right Value */}
+        <div>
+          <label className="block text-xs font-medium text-gray-400 mb-2">
+            우측 값
+          </label>
+          <input
+            type="text"
+            placeholder="예: 70"
+            value={rightValue || ''}
+            onChange={(e) => handleConditionConfigUpdate('rightValue', e.target.value)}
+            className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-yellow-500 focus:outline-none"
+          />
+        </div>
+
+        {/* Info Box */}
+        <div className="px-3 py-2 bg-yellow-900/20 border border-yellow-700/30 rounded-lg">
+          <p className="text-xs text-yellow-300">
+            💡 <strong>팁:</strong> Then(참) 출력은 우측, Else(거짓) 출력은 좌측으로 연결됩니다
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  // Render LoopNode specific UI
+  const renderLoopProperties = () => {
+    if (!isLoopNode) return null;
+
+    const loopData = nodeData as LoopNode['data'];
+    const { loopType, iterations, exitCondition, maxIterations } = loopData.config;
+
+    return (
+      <div className="space-y-4">
+        {/* Loop Type Selection */}
+        <div>
+          <label className="block text-xs font-medium text-gray-400 mb-2">
+            Loop 타입
+          </label>
+          <select
+            value={loopType}
+            onChange={(e) => handleLoopConfigUpdate('loopType', e.target.value)}
+            className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-orange-500 focus:outline-none"
+          >
+            <option value={LoopType.FOR}>For Loop (고정 횟수)</option>
+            <option value={LoopType.WHILE}>While Loop (조건 반복)</option>
+          </select>
+        </div>
+
+        {/* Iterations (FOR loop) */}
+        {loopType === LoopType.FOR && (
+          <div>
+            <label className="block text-xs font-medium text-gray-400 mb-2">
+              반복 횟수
+            </label>
+            <input
+              type="number"
+              min="1"
+              max="1000"
+              value={iterations || 10}
+              onChange={(e) => handleLoopConfigUpdate('iterations', e.target.value)}
+              className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-orange-500 focus:outline-none"
+            />
+          </div>
+        )}
+
+        {/* Exit Condition (WHILE loop) */}
+        {loopType === LoopType.WHILE && (
+          <div>
+            <label className="block text-xs font-medium text-gray-400 mb-2">
+              탈출 조건
+            </label>
+            <input
+              type="text"
+              placeholder="예: 포트폴리오 < 1000"
+              value={exitCondition || ''}
+              onChange={(e) => handleLoopConfigUpdate('exitCondition', e.target.value)}
+              className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-orange-500 focus:outline-none"
+            />
+          </div>
+        )}
+
+        {/* Max Iterations (safety) */}
+        <div>
+          <label className="block text-xs font-medium text-gray-400 mb-2">
+            최대 반복 횟수 (안전장치)
+          </label>
+          <input
+            type="number"
+            min="1"
+            max="10000"
+            value={maxIterations || 1000}
+            onChange={(e) => handleLoopConfigUpdate('maxIterations', e.target.value)}
+            className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-orange-500 focus:outline-none"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            무한 루프 방지를 위한 최대 반복 횟수
+          </p>
+        </div>
+
+        {/* Info Box */}
+        <div className="px-3 py-2 bg-orange-900/20 border border-orange-700/30 rounded-lg">
+          <p className="text-xs text-orange-300">
+            💡 <strong>팁:</strong> Loop 내에서 Break 노드로 조기 종료 가능
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  // Render RiskManagementNode specific UI
+  const renderRiskManagementProperties = () => {
+    if (!isRiskManagementNode) return null;
+
+    const riskData = nodeData as RiskManagementNode['data'];
+    const { stopLoss, takeProfit, trailingStop } = riskData.config;
+
+    return (
+      <div className="space-y-4">
+        {/* Stop Loss */}
+        <div>
+          <label className="block text-xs font-medium text-gray-400 mb-2">
+            Stop Loss (손절가)
+          </label>
+          <input
+            type="text"
+            placeholder="예: -5% 또는 90"
+            value={stopLoss || ''}
+            onChange={(e) => handleRiskManagementConfigUpdate('stopLoss', e.target.value)}
+            className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-pink-500 focus:outline-none"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            퍼센트(%) 또는 고정 가격
+          </p>
+        </div>
+
+        {/* Take Profit */}
+        <div>
+          <label className="block text-xs font-medium text-gray-400 mb-2">
+            Take Profit (익절가)
+          </label>
+          <input
+            type="text"
+            placeholder="예: +10% 또는 110"
+            value={takeProfit || ''}
+            onChange={(e) => handleRiskManagementConfigUpdate('takeProfit', e.target.value)}
+            className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-pink-500 focus:outline-none"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            퍼센트(%) 또는 고정 가격
+          </p>
+        </div>
+
+        {/* Trailing Stop */}
+        <div>
+          <label className="block text-xs font-medium text-gray-400 mb-2">
+            Trailing Stop (추적 손절) - 선택사항
+          </label>
+          <input
+            type="text"
+            placeholder="예: 3%"
+            value={trailingStop || ''}
+            onChange={(e) => handleRiskManagementConfigUpdate('trailingStop', e.target.value)}
+            className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-pink-500 focus:outline-none"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            최고가에서 하락 시 청산 (고급 기능)
+          </p>
+        </div>
+
+        {/* Info Box */}
+        <div className="px-3 py-2 bg-pink-900/20 border border-pink-700/30 rounded-lg">
+          <p className="text-xs text-pink-300">
+            💡 <strong>팁:</strong> SL/TP는 매수/매도 액션과 연결하여 사용합니다
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+
   return (
     <div className="w-[300px] h-full bg-[#1a1a1a] border-l border-gray-700 flex flex-col">
       {/* Header */}
