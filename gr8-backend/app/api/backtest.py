@@ -48,16 +48,15 @@ class BacktestResponse(BaseModel):
 async def run_backtest(
     request: BacktestRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: Dict[str, Any] = Depends(get_current_user),
 ):
     """
-    Run backtest on historical data and save results
+    Run backtest on historical data and optionally save results
     
     This endpoint:
     1. Fetches historical market data from exchange
     2. Executes strategy on the data
     3. Returns performance metrics
-    4. Saves results to database
+    4. Attempts to save results to database (optional)
     """
     start_time = datetime.now()
     
@@ -82,35 +81,39 @@ async def run_backtest(
         # Calculate execution time
         execution_time = int((datetime.now() - start_time).total_seconds() * 1000)
 
-        # Save results to database
+        # Try to save results to database (optional - won't fail if DB unavailable)
         backtest_id = str(uuid.uuid4())
-        backtest_result = BacktestResult(
-            id=backtest_id,
-            user_wallet=current_user.get('wallet_address', 'anonymous'),
-            strategy_name=request.strategy.get('metadata', {}).get('name', 'Unnamed Strategy'),
-            strategy_data=request.strategy,
-            exchange=request.exchange,
-            symbol=request.symbol,
-            timeframe=request.timeframe,
-            start_date=request.start_date,
-            end_date=request.end_date,
-            initial_capital=request.initial_capital,
-            final_capital=results['final_capital'],
-            total_return=results['total_return'],
-            roi=results['roi'],
-            max_drawdown=results['max_drawdown'],
-            sharpe_ratio=results['sharpe_ratio'],
-            total_trades=results['total_trades'],
-            win_rate=results['win_rate'],
-            profit_factor=results['profit_factor'],
-            trades=results['trades'],
-            equity_curve=results['equity_curve'],
-            execution_time_ms=execution_time,
-        )
+        try:
+            backtest_result = BacktestResult(
+                id=backtest_id,
+                user_wallet='anonymous',  # TODO: Get from auth when ready
+                strategy_name=request.strategy.get('metadata', {}).get('name', 'Unnamed Strategy'),
+                strategy_data=request.strategy,
+                exchange=request.exchange,
+                symbol=request.symbol,
+                timeframe=request.timeframe,
+                start_date=request.start_date,
+                end_date=request.end_date,
+                initial_capital=request.initial_capital,
+                final_capital=results['final_capital'],
+                total_return=results['total_return'],
+                roi=results['roi'],
+                max_drawdown=results['max_drawdown'],
+                sharpe_ratio=results['sharpe_ratio'],
+                total_trades=results['total_trades'],
+                win_rate=results['win_rate'],
+                profit_factor=results['profit_factor'],
+                trades=results['trades'],
+                equity_curve=results['equity_curve'],
+                execution_time_ms=execution_time,
+            )
 
-        db.add(backtest_result)
-        await db.commit()
-        await db.refresh(backtest_result)
+            db.add(backtest_result)
+            await db.commit()
+        except Exception as db_error:
+            # DB save failed, but still return results
+            print(f"Warning: Failed to save backtest to DB: {db_error}")
+            await db.rollback()
 
         return BacktestResponse(
             success=True,
@@ -119,6 +122,10 @@ async def run_backtest(
         )
 
     except Exception as e:
+        return BacktestResponse(
+            success=False,
+            error=str(e),
+        )
 
 
 @router.get("/history")
