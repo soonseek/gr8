@@ -94,3 +94,14 @@ export function Toolbar() {
   );
 }
 
+
+      {/* Modals */}
+      <SaveStrategyModal 
+        isOpen={showSaveModal} 
+        onClose={() => setShowSaveModal(false)} 
+      />
+      <LoadStrategyModal 
+        isOpen={showLoadModal} 
+        onClose={() => setShowLoadModal(false)} 
+      />
+
