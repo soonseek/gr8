@@ -16,7 +16,6 @@ from app.backtest.engine import BacktestEngine
 from app.backtest.data_fetcher import DataFetcher
 from app.core.database import get_db
 from app.models.backtest import BacktestResult
-from app.auth.jwt_auth import get_current_user
 
 router = APIRouter(prefix="/api/backtest", tags=["backtest"])
 
