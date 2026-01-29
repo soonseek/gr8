@@ -147,6 +147,94 @@ export function PropertiesPanel() {
     }
   };
 
+  // Handle Action config update
+  const handleActionConfigUpdate = (key: string, value: string | number) => {
+    if (!isActionNode) return;
+
+    const actionData = nodeData as ActionNode['data'];
+    const updatedConfig = {
+      ...actionData.config,
+      [key]: key === 'amount' || key === 'splitCount' ? Number(value) : value,
+    };
+
+    // Generate dynamic label
+    const isBuy = updatedConfig.actionType === ActionType.BUY;
+    let label = isBuy ? '매수' : '매도';
+    label += ` ${updatedConfig.amount} USDT`;
+    if (updatedConfig.splitCount && updatedConfig.splitCount > 1) {
+      label += ` (${updatedConfig.splitCount}회 분할)`;
+    }
+
+    updateNode(selectedNode.id, {
+      label,
+      config: updatedConfig,
+    });
+  };
+
+  // Handle Condition config update
+  const handleConditionConfigUpdate = (key: string, value: string | number) => {
+    if (!isConditionNode) return;
+
+    const conditionData = nodeData as ConditionNode['data'];
+    const updatedConfig = {
+      ...conditionData.config,
+      [key]: value,
+    };
+
+    // Generate dynamic label
+    const { operator, leftValue, rightValue } = updatedConfig;
+    const label = `If ${leftValue || '?'} ${operator} ${rightValue || '?'}`;
+
+    updateNode(selectedNode.id, {
+      label,
+      config: updatedConfig,
+    });
+  };
+
+  // Handle Loop config update
+  const handleLoopConfigUpdate = (key: string, value: string | number) => {
+    if (!isLoopNode) return;
+
+    const loopData = nodeData as LoopNode['data'];
+    const updatedConfig = {
+      ...loopData.config,
+      [key]: key === 'iterations' || key === 'maxIterations' ? Number(value) : value,
+    };
+
+    // Generate dynamic label
+    let label = updatedConfig.loopType === LoopType.FOR ? 'For Loop' : 'While Loop';
+    if (updatedConfig.loopType === LoopType.FOR) {
+      label += ` (${updatedConfig.iterations}회)`;
+    }
+
+    updateNode(selectedNode.id, {
+      label,
+      config: updatedConfig,
+    });
+  };
+
+  // Handle Risk Management config update
+  const handleRiskManagementConfigUpdate = (key: string, value: string | number) => {
+    if (!isRiskManagementNode) return;
+
+    const riskData = nodeData as RiskManagementNode['data'];
+    const updatedConfig = {
+      ...riskData.config,
+      [key]: typeof value === 'string' && value.includes('%') ? value : Number(value),
+    };
+
+    // Generate dynamic label
+    let label = 'Risk Mgmt';
+    if (updatedConfig.stopLoss) label += ` SL:${updatedConfig.stopLoss}`;
+    if (updatedConfig.takeProfit) label += ` TP:${updatedConfig.takeProfit}`;
+
+    updateNode(selectedNode.id, {
+      label,
+      config: updatedConfig,
+    });
+  };
+
+
   // Render IndicatorNode specific UI
   const renderIndicatorProperties = () => {
     if (!isIndicatorNode) return null;
