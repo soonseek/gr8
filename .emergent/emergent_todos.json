@@ -1,51 +1,19 @@
 [
   {
-    "content": "Story 3-4-deps-1: technicalindicators 라이브러리 설치 및 TypeScript 타입 정의",
-    "status": "completed"
-  },
-  {
-    "content": "Story 3-4: 기술적 지표 노드 구현 (RSI, MACD, MA)",
-    "status": "completed"
-  },
-  {
-    "content": "Story 3-5: 기본 매수/매도 액션 노드 구현",
-    "status": "completed"
-  },
-  {
-    "content": "Story 3-6: 분할 매수/매도 기능 구현",
-    "status": "completed"
-  },
-  {
-    "content": "Story 3-7: 조건부 분기 노드 (If-Then-Else) 구현",
-    "status": "completed"
-  },
-  {
-    "content": "Story 3-8: Loop 구조 (순환매) 구현",
-    "status": "completed"
-  },
-  {
-    "content": "Story 3-9: 리스크 관리 노드 (Stop Loss, Take Profit) 구현",
-    "status": "completed"
-  },
-  {
     "content": "Story 3-10: 전략 저장 및 로드 (localStorage) 구현",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Story 3-11-deps-1: Zod 라이브러리 설치",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Story 3-11: 전략 JSON export/import 구현",
-    "status": "pending"
-  },
-  {
-    "content": "Story 3-12-deps-1: React-Markdown 라이브러리 설치",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Story 3-12: 전략 이름 및 설명 수정 기능",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Story 3-13: 프리셋 시스템 (DCA 마틴게일, RSI 봇) 구현",
