@@ -143,8 +143,168 @@ export function PropertiesPanel() {
     }
   };
 
-  // Render MarketDataNode specific UI
-  const renderMarketDataProperties = () => {
+  // Render IndicatorNode specific UI
+  const renderIndicatorProperties = () => {
+    if (!isIndicatorNode) return null;
+
+    const indicatorData = nodeData as IndicatorNode['data'];
+    const { indicatorType, parameters } = indicatorData.config;
+
+    const INDICATOR_TYPE_OPTIONS = [
+      { value: IndicatorType.RSI, label: 'RSI (상대강도지수)', icon: '📊' },
+      { value: IndicatorType.MACD, label: 'MACD (이동평균수렴확산)', icon: '📉' },
+      { value: IndicatorType.SMA, label: 'SMA (단순이동평균)', icon: '📈' },
+      { value: IndicatorType.EMA, label: 'EMA (지수이동평균)', icon: '📈' },
+      { value: IndicatorType.BOLLINGER_BANDS, label: '볼린저 밴드', icon: '📊' },
+    ];
+
+    return (
+      <div className="space-y-4">
+        {/* Indicator Type Selection */}
+        <div>
+          <label className="block text-xs font-medium text-gray-400 mb-2">
+            지표 타입
+          </label>
+          <select
+            value={indicatorType}
+            onChange={(e) => handleIndicatorConfigUpdate('indicatorType', e.target.value)}
+            className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-purple-500 focus:outline-none"
+          >
+            {INDICATOR_TYPE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.icon} {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* RSI Parameters */}
+        {indicatorType === IndicatorType.RSI && (
+          <div>
+            <label className="block text-xs font-medium text-gray-400 mb-2">
+              Period (기간)
+            </label>
+            <input
+              type="number"
+              min="2"
+              max="100"
+              value={parameters.period || 14}
+              onChange={(e) => handleIndicatorConfigUpdate('param_period', e.target.value)}
+              className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-purple-500 focus:outline-none"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              RSI 계산 기간 (일반적으로 14 사용)
+            </p>
+          </div>
+        )}
+
+        {/* MACD Parameters */}
+        {indicatorType === IndicatorType.MACD && (
+          <>
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-2">
+                Fast Period (빠른 기간)
+              </label>
+              <input
+                type="number"
+                min="2"
+                max="100"
+                value={parameters.fastPeriod || 12}
+                onChange={(e) => handleIndicatorConfigUpdate('param_fastPeriod', e.target.value)}
+                className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-purple-500 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-2">
+                Slow Period (느린 기간)
+              </label>
+              <input
+                type="number"
+                min="2"
+                max="100"
+                value={parameters.slowPeriod || 26}
+                onChange={(e) => handleIndicatorConfigUpdate('param_slowPeriod', e.target.value)}
+                className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-purple-500 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-2">
+                Signal Period (시그널 기간)
+              </label>
+              <input
+                type="number"
+                min="2"
+                max="100"
+                value={parameters.signalPeriod || 9}
+                onChange={(e) => handleIndicatorConfigUpdate('param_signalPeriod', e.target.value)}
+                className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-purple-500 focus:outline-none"
+              />
+            </div>
+          </>
+        )}
+
+        {/* SMA/EMA Parameters */}
+        {(indicatorType === IndicatorType.SMA || indicatorType === IndicatorType.EMA) && (
+          <div>
+            <label className="block text-xs font-medium text-gray-400 mb-2">
+              Period (기간)
+            </label>
+            <input
+              type="number"
+              min="2"
+              max="200"
+              value={parameters.period || 20}
+              onChange={(e) => handleIndicatorConfigUpdate('param_period', e.target.value)}
+              className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-purple-500 focus:outline-none"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              이동평균 계산 기간 (일반적으로 20, 50, 200 사용)
+            </p>
+          </div>
+        )}
+
+        {/* Bollinger Bands Parameters */}
+        {indicatorType === IndicatorType.BOLLINGER_BANDS && (
+          <>
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-2">
+                Period (기간)
+              </label>
+              <input
+                type="number"
+                min="2"
+                max="100"
+                value={parameters.period || 20}
+                onChange={(e) => handleIndicatorConfigUpdate('param_period', e.target.value)}
+                className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-purple-500 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-2">
+                표준편차 (Std Dev)
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="5"
+                step="0.1"
+                value={parameters.stdDev || 2}
+                onChange={(e) => handleIndicatorConfigUpdate('param_stdDev', e.target.value)}
+                className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-sm text-gray-100 focus:border-purple-500 focus:outline-none"
+              />
+            </div>
+          </>
+        )}
+
+        {/* Info Box */}
+        <div className="px-3 py-2 bg-purple-900/20 border border-purple-700/30 rounded-lg">
+          <p className="text-xs text-purple-300">
+            💡 <strong>팁:</strong> 지표는 시장 데이터 노드와 연결하여 사용합니다
+          </p>
+        </div>
+      </div>
+    );
+  };
     if (!isMarketDataNode) return null;
 
     const { exchange, dataType, symbol, timeframe } = nodeData.config;
