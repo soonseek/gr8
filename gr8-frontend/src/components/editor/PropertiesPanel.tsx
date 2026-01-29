@@ -65,12 +65,13 @@ export function PropertiesPanel() {
   const isIndicatorNode = selectedNode.type === 'indicator';
   const nodeData = selectedNode.data as MarketDataNode['data'] | IndicatorNode['data'];
 
-  // Handle config update
+  // Handle MarketData config update
   const handleConfigUpdate = (key: string, value: string) => {
     if (!isMarketDataNode) return;
 
+    const marketData = nodeData as MarketDataNode['data'];
     const updatedConfig = {
-      ...nodeData.config,
+      ...marketData.config,
       [key]: value,
     };
 
@@ -87,6 +88,59 @@ export function PropertiesPanel() {
       label,
       config: updatedConfig,
     });
+  };
+
+  // Handle Indicator config update
+  const handleIndicatorConfigUpdate = (key: string, value: string | number) => {
+    if (!isIndicatorNode) return;
+
+    const indicatorData = nodeData as IndicatorNode['data'];
+    
+    // Update indicator type
+    if (key === 'indicatorType') {
+      const newType = value as IndicatorType;
+      const defaultParams = DEFAULT_INDICATOR_PARAMS[newType];
+      
+      updateNode(selectedNode.id, {
+        label: INDICATOR_LABELS[newType],
+        config: {
+          ...indicatorData.config,
+          indicatorType: newType,
+          parameters: defaultParams,
+        },
+      });
+      return;
+    }
+
+    // Update parameters
+    if (key.startsWith('param_')) {
+      const paramName = key.replace('param_', '');
+      const updatedParams = {
+        ...indicatorData.config.parameters,
+        [paramName]: Number(value),
+      };
+
+      // Generate dynamic label
+      const type = indicatorData.config.indicatorType;
+      let label = INDICATOR_LABELS[type];
+      
+      // Add parameter values to label
+      if (type === IndicatorType.RSI || type === IndicatorType.SMA || type === IndicatorType.EMA) {
+        label = `${type}(${updatedParams.period})`;
+      } else if (type === IndicatorType.MACD) {
+        label = `MACD(${updatedParams.fastPeriod},${updatedParams.slowPeriod},${updatedParams.signalPeriod})`;
+      } else if (type === IndicatorType.BOLLINGER_BANDS) {
+        label = `BB(${updatedParams.period},${updatedParams.stdDev})`;
+      }
+
+      updateNode(selectedNode.id, {
+        label,
+        config: {
+          ...indicatorData.config,
+          parameters: updatedParams,
+        },
+      });
+    }
   };
 
   // Render MarketDataNode specific UI
