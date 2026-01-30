@@ -11,20 +11,32 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 1440  # 24시간
 
 
-def create_access_token(wallet_address: str) -> str:
-    """Web3 지갑 주소로 JWT 토큰 생성
-
+def create_access_token(data: dict) -> str:
+    """JWT 토큰 생성
+    
     Args:
-        wallet_address: Web3 지갑 주소 (0x...)
-
+        data: Token payload data (dict with wallet_address, role, etc.)
+    
     Returns:
         str: JWT access token
     """
-    payload = {
-        "wallet_address": wallet_address.lower(),
-        "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
-        "iat": datetime.utcnow()
-    }
+    # Handle both string and dict input for backward compatibility
+    if isinstance(data, str):
+        wallet_address = data
+        payload = {
+            "wallet_address": wallet_address.lower(),
+            "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+            "iat": datetime.utcnow()
+        }
+    else:
+        # Dict input (new MongoDB version)
+        payload = {
+            "wallet_address": data.get("sub", "").lower() if isinstance(data.get("sub"), str) else "",
+            "role": data.get("role", "user"),
+            "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+            "iat": datetime.utcnow()
+        }
+    
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
     return token
 
