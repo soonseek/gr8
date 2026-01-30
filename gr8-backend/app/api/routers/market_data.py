@@ -134,7 +134,7 @@ async def get_market_data(
     end_date: datetime = Query(..., description="End date (ISO 8601 format)"),
     exchange: str = Query("binance", description="Exchange identifier (binance, okx, bybit, gate, bitget)"),
     db: AsyncIOMotorDatabase = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: Dict = Depends(get_current_user),
 ):
     """
     Get historical OHLCV market data (AC 5 requirement)
@@ -266,7 +266,7 @@ async def fetch_and_store_market_data(
     end_date: datetime = Query(..., description="End date (ISO 8601)"),
     exchange: str = Query("binance", description="Exchange identifier"),
     db: AsyncIOMotorDatabase = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: Dict = Depends(get_current_user),
 ):
     """
     Force fetch market data from exchange (AC 5 requirement)
@@ -442,7 +442,7 @@ async def sync_market_data(
     exchange: Optional[str] = Query(None, description="Exchange (None = all)"),
     base_symbol: Optional[str] = Query(None, description="Base symbol (None = all)"),
     timeframe: Optional[str] = Query(None, description="Timeframe (None = all)"),
-    current_user: User = Depends(get_current_admin_user),  # Admin only
+    current_user: Dict = Depends(get_current_admin_user),  # Admin only
 ):
     """
     Trigger manual market data synchronization (AC 13 requirement)
@@ -524,7 +524,7 @@ async def sync_market_data(
 
 @router.get("/sync/status", response_model=SyncStatusResponse, status_code=200)
 async def get_sync_status(
-    current_user: User = Depends(get_current_user),
+    current_user: Dict = Depends(get_current_user),
 ):
     """
     Get market data synchronization status (AC 13 requirement)
