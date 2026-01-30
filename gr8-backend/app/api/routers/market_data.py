@@ -79,13 +79,9 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Get user from database
-    from sqlalchemy import select
-
-    result = await db.execute(
-        select(User).where(User.wallet_address == wallet_address)
-    )
-    user = result.scalar_one_or_none()
+    # Get user from database (MongoDB)
+    users_collection = db["users"]
+    user = await users_collection.find_one({"wallet_address": wallet_address})
 
     if not user:
         raise HTTPException(
@@ -94,7 +90,7 @@ async def get_current_user(
         )
 
     # Check if user is banned
-    if hasattr(user, 'status') and user.status == 'banned':
+    if user.get('status') == 'banned':
         raise HTTPException(
             status_code=403,
             detail="차단된 사용자입니다. 문의하기를 통해 문의해주세요."
