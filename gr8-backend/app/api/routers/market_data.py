@@ -1,9 +1,9 @@
 """
-Market Data API Router
+Market Data API Router - MongoDB version
 
 Provides endpoints for:
 1. Fetching historical OHLCV data from exchanges
-2. Querying cached market data from database
+2. Querying cached market data from MongoDB
 3. Triggering manual data synchronization
 4. Checking synchronization status
 """
@@ -14,10 +14,9 @@ from typing import Optional, Dict
 from datetime import datetime
 from fastapi import APIRouter, Depends, Query, HTTPException, Header, BackgroundTasks
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.ext.asyncio import AsyncSession
+from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from app.core.database import get_db, AsyncSessionLocal
-from app.models.user import User
+from app.core.database import get_db
 from app.schemas.market_data import (
     MarketDataResponse,
     MarketDataFetchRequest,
