@@ -1,60 +1,67 @@
 """
-Database configuration and session management
-Uses SQLAlchemy 2.0 with async PostgreSQL
+Database configuration - MongoDB
+Uses Motor (async MongoDB driver)
 """
 
-from typing import AsyncGenerator
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+from typing import Optional
+import os
 
-from sqlalchemy.ext.asyncio import (
-    AsyncSession,
-    async_sessionmaker,
-    create_async_engine,
-)
-from sqlalchemy.orm import DeclarativeBase
+# MongoDB connection URL
+MONGO_URL = os.getenv('MONGO_URL', 'mongodb://localhost:27017')
+DATABASE_NAME = os.getenv('MONGO_DATABASE', 'gr8')
 
-from app.core.config import settings
-
-# Database URL from settings
-# Format: postgresql+asyncpg://user:password@host:port/database
-DATABASE_URL = settings.database_url
-
-# Create async engine with connection pooling
-engine = create_async_engine(
-    DATABASE_URL,
-    echo=False,
-    pool_size=10,
-    max_overflow=20,
-    pool_pre_ping=True,  # Verify connections before using
-)
-
-# Create async session factory
-AsyncSessionLocal = async_sessionmaker(
-    bind=engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
-    autocommit=False,
-    autoflush=False,
-)
+# Global MongoDB client and database
+_client: Optional[AsyncIOMotorClient] = None
+_database: Optional[AsyncIOMotorDatabase] = None
 
 
-# Base class for models
-class Base(DeclarativeBase):
-    """Base class for all SQLAlchemy models"""
-    pass
-
-
-# Dependency function to get DB session
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
+def get_mongodb_client() -> AsyncIOMotorClient:
     """
-    Dependency function to yield async database sessions.
+    Get MongoDB client instance (singleton)
+    """
+    global _client
+    if _client is None:
+        _client = AsyncIOMotorClient(MONGO_URL)
+    return _client
 
+
+def get_database() -> AsyncIOMotorDatabase:
+    """
+    Get MongoDB database instance
+    """
+    global _database
+    if _database is None:
+        client = get_mongodb_client()
+        _database = client[DATABASE_NAME]
+    return _database
+
+
+async def get_db() -> AsyncIOMotorDatabase:
+    """
+    Dependency function for FastAPI to get database
+    
     Usage:
-        @app.get("/users/")
-        async def read_users(db: AsyncSession = Depends(get_db)):
-            ...
+        @router.get("/users")
+        async def get_users(db: AsyncIOMotorDatabase = Depends(get_db)):
+            users = await db.users.find().to_list(100)
+            return users
     """
-    async with AsyncSessionLocal() as session:
-        try:
-            yield session
-        finally:
-            await session.close()
+    return get_database()
+
+
+async def close_mongodb_connection():
+    """
+    Close MongoDB connection
+    Call this on application shutdown
+    """
+    global _client
+    if _client is not None:
+        _client.close()
+        _client = None
+
+
+# Legacy compatibility: Keep Base for now (will be removed)
+class Base:
+    """Placeholder for SQLAlchemy Base - not used in MongoDB"""
+    pass
