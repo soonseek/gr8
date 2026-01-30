@@ -202,15 +202,15 @@ async def login(
 @router.get("/me", response_model=UserResponse, status_code=status.HTTP_200_OK)
 async def get_current_user(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
-    db: AsyncSession = Depends(get_db),
+    db: AsyncIOMotorDatabase = Depends(get_db),
 ):
-    """Get current authenticated user information.
+    """Get current authenticated user information - MongoDB version.
 
     Requires valid JWT token in Authorization header.
 
     Args:
         credentials: HTTP Bearer credentials (auto-injected by FastAPI Security)
-        db: Database session
+        db: MongoDB database
 
     Returns:
         UserResponse: Current user's wallet address and role
@@ -237,13 +237,8 @@ async def get_current_user(
             detail="Invalid or expired token"
         )
 
-    # Get user from database
-    from sqlalchemy import select
-
-    result = await db.execute(
-        select(User).where(User.wallet_address == wallet_address)
-    )
-    user = result.scalar_one_or_none()
+    # Get user from MongoDB
+    user = await db.users.find_one({"wallet_address": wallet_address})
 
     if not user:
         raise HTTPException(
@@ -252,15 +247,15 @@ async def get_current_user(
         )
 
     # Check if user is banned
-    if user.status == 'banned':
+    if user.get("status") == 'banned':
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="차단된 사용자입니다. 문의하기를 통해 문의해주세요."
         )
 
     return UserResponse(
-        wallet_address=user.wallet_address,
-        role=user.role
+        wallet_address=user["wallet_address"],
+        role=user["role"]
     )
 
 
