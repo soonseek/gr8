@@ -29,16 +29,13 @@ async def lifespan(app: FastAPI):
     Lifespan context manager for FastAPI application.
     Handles startup and shutdown events.
     """
-    # Startup: Initialize scheduler
-    from app.core.scheduler import lifespan as scheduler_lifespan
+    # Temporarily disabled scheduler during MongoDB migration
+    # from app.core.scheduler import lifespan as scheduler_lifespan
 
     print("Starting gr8 API...")
+    
+    yield
 
-    # Start scheduler lifespan
-    async with scheduler_lifespan():
-        yield
-
-    # Shutdown is handled by scheduler_lifespan
     print("Shutting down gr8 API...")
 
 
