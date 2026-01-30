@@ -8,6 +8,7 @@
 
 import { useState } from 'react';
 import { useConnect } from 'wagmi';
+import { toast } from 'react-hot-toast';
 
 /**
  * Loading Spinner Component
