@@ -503,7 +503,7 @@ async def sync_market_data(
         None,  # db_session_factory not needed for MongoDB
     )
 
-    logger.info(f"Sync job {job_id} started by admin {current_user.wallet_address}")
+    logger.info(f"Sync job {job_id} started by admin {current_user.get('wallet_address')}")
 
     # Calculate total combinations
     exchanges = [exchange] if exchange else MVP_EXCHANGES
