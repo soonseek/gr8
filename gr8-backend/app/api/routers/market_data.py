@@ -114,7 +114,7 @@ async def get_current_admin_user(
     Raises:
         HTTPException 403: If user is not an admin
     """
-    if current_user.role != "admin":
+    if current_user.get("role") != "admin":
         raise HTTPException(
             status_code=403,
             detail="Admin 권한이 필요합니다"
