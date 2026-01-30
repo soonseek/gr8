@@ -374,66 +374,66 @@ async def perform_sync_job(
     db = get_db()
     # MongoDB background task
     try:
-            sync_jobs[job_id]["status"] = "running"
+        sync_jobs[job_id]["status"] = "running"
 
-            # Determine scope of sync
-            exchanges = [exchange] if exchange else MVP_EXCHANGES
-            symbols = [base_symbol] if base_symbol else MVP_SYMBOLS_BASE
-            timeframes = [timeframe] if timeframe else TIMEFRAMES
+        # Determine scope of sync
+        exchanges = [exchange] if exchange else MVP_EXCHANGES
+        symbols = [base_symbol] if base_symbol else MVP_SYMBOLS_BASE
+        timeframes = [timeframe] if timeframe else TIMEFRAMES
 
-            total = len(exchanges) * len(symbols) * len(timeframes)
-            current = 0
-            synced = 0
-            failed = 0
-            gaps_filled = 0
+        total = len(exchanges) * len(symbols) * len(timeframes)
+        current = 0
+        synced = 0
+        failed = 0
+        gaps_filled = 0
 
-            for exch in exchanges:
-                for base in symbols:
-                    for tf in timeframes:
-                        try:
-                            service = MarketDataService(exchange_id=exch)
-                            symbol = service.format_symbol(base)
+        for exch in exchanges:
+            for base in symbols:
+                for tf in timeframes:
+                    try:
+                        service = MarketDataService(exchange_id=exch)
+                        symbol = service.format_symbol(base)
 
-                            # Sync missing data
-                            new_candles = await service.sync_missing_data(
-                                symbol=symbol,
-                                timeframe=tf,
-                                db=db
-                            )
-                            synced += new_candles
+                        # Sync missing data
+                        new_candles = await service.sync_missing_data(
+                            symbol=symbol,
+                            timeframe=tf,
+                            db=db
+                        )
+                        synced += new_candles
 
-                            # Detect and fill gaps
-                            filled = await service.detect_and_fill_gaps(
-                                symbol=symbol,
-                                timeframe=tf,
-                                db=db
-                            )
-                            gaps_filled += filled
+                        # Detect and fill gaps
+                        filled = await service.detect_and_fill_gaps(
+                            symbol=symbol,
+                            timeframe=tf,
+                            db=db
+                        )
+                        gaps_filled += filled
 
-                        except Exception as e:
-                            logger.error(
-                                f"Failed to sync {exch}/{symbol}/{tf}: {e}"
-                            )
-                            failed += 1
+                    except Exception as e:
+                        logger.error(
+                            f"Failed to sync {exch}/{symbol}/{tf}: {e}"
+                        )
+                        failed += 1
 
-                        current += 1
-                        progress = int(current / total * 100)
-                        sync_jobs[job_id]["progress"] = progress
+                    current += 1
+                    progress = int(current / total * 100)
+                    sync_jobs[job_id]["progress"] = progress
 
-            sync_jobs[job_id]["status"] = "completed"
-            sync_jobs[job_id]["synced"] = synced
-            sync_jobs[job_id]["failed"] = failed
-            sync_jobs[job_id]["gaps_filled"] = gaps_filled
+        sync_jobs[job_id]["status"] = "completed"
+        sync_jobs[job_id]["synced"] = synced
+        sync_jobs[job_id]["failed"] = failed
+        sync_jobs[job_id]["gaps_filled"] = gaps_filled
 
-            logger.info(
-                f"Sync job {job_id} completed: "
-                f"{synced} synced, {failed} failed, {gaps_filled} gaps filled"
-            )
+        logger.info(
+            f"Sync job {job_id} completed: "
+            f"{synced} synced, {failed} failed, {gaps_filled} gaps filled"
+        )
 
-        except Exception as e:
-            logger.error(f"Sync job {job_id} failed: {e}")
-            sync_jobs[job_id]["status"] = "failed"
-            sync_jobs[job_id]["error"] = str(e)
+    except Exception as e:
+        logger.error(f"Sync job {job_id} failed: {e}")
+        sync_jobs[job_id]["status"] = "failed"
+        sync_jobs[job_id]["error"] = str(e)
 
 
 @router.post("/sync", response_model=SyncJobResponse, status_code=202)
