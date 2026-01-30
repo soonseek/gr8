@@ -1,16 +1,16 @@
-"""Authentication router for Web3 wallet-based login."""
+"""Authentication router for Web3 wallet-based login - MongoDB version."""
 
 import logging
 from fastapi import APIRouter, Depends, HTTPException, status, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field
 from typing import Optional
-from sqlalchemy.ext.asyncio import AsyncSession
+from motor.motor_asyncio import AsyncIOMotorDatabase
+from datetime import datetime
 
 from app.core.database import get_db
 from app.auth.jwt import create_access_token, verify_token, decode_jwt
 from app.auth.web3_auth import verify_web3_signature
-from app.models.user import User
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
