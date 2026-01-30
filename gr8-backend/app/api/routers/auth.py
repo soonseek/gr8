@@ -220,15 +220,15 @@ async def get_current_user(
 @router.post("/refresh", response_model=RefreshTokenResponse, status_code=status.HTTP_200_OK)
 async def refresh_token(
     request: RefreshTokenRequest,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncIOMotorDatabase = Depends(get_db)
 ):
-    """Refresh JWT token.
+    """Refresh JWT token - MongoDB version.
 
     Validates the existing token and issues a new token with extended expiration.
 
     Args:
         request: Refresh token request with current token
-        db: Database session
+        db: MongoDB database
 
     Returns:
         RefreshTokenResponse: New JWT token with 24-hour expiration
