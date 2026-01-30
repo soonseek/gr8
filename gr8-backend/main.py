@@ -10,7 +10,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routers import auth, market_data
-from app.api import admin, backtest
+from app.api import backtest
+# from app.api import admin  # Temporarily disabled during MongoDB migration
 
 # Configure logging
 logging.basicConfig(
