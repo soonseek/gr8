@@ -1,6 +1,22 @@
 [
   {
-    "content": "MetaMask 지갑 연결 문제 해결",
-    "status": "completed"
+    "content": "PostgreSQL을 MongoDB로 완전 교체",
+    "status": "in_progress"
+  },
+  {
+    "content": "database.py MongoDB 연결로 수정",
+    "status": "pending"
+  },
+  {
+    "content": "모델을 MongoDB 스키마로 변경",
+    "status": "pending"
+  },
+  {
+    "content": "모든 API MongoDB 사용하도록 수정",
+    "status": "pending"
+  },
+  {
+    "content": "전체 점검 및 테스트",
+    "status": "pending"
   }
 ]
