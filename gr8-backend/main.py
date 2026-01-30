@@ -104,7 +104,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth.router)
-app.include_router(admin.router)
+# app.include_router(admin.router)  # Temporarily disabled during MongoDB migration
 app.include_router(market_data.router)
 app.include_router(backtest.router)
 
