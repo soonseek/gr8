@@ -127,36 +127,30 @@ async def run_backtest(
 
 @router.get("/history")
 async def get_backtest_history(
-    db: AsyncSession = Depends(get_db),
+    db: AsyncIOMotorDatabase = Depends(get_db),
     limit: int = 20,
 ):
     """
-    Get backtest history (all users for now)
+    Get backtest history (all users for now) - MongoDB version
     """
-    from sqlalchemy import select, desc
-    
     try:
-        query = select(BacktestResult).order_by(
-            desc(BacktestResult.created_at)
-        ).limit(limit)
-        
-        result = await db.execute(query)
-        backtests = result.scalars().all()
+        cursor = db.backtest_results.find().sort("created_at", -1).limit(limit)
+        backtests = await cursor.to_list(length=limit)
         
         return {
             "success": True,
             "backtests": [
                 {
-                    "id": bt.id,
-                    "strategy_name": bt.strategy_name,
-                    "exchange": bt.exchange,
-                    "symbol": bt.symbol,
-                    "timeframe": bt.timeframe,
-                    "roi": bt.roi,
-                    "max_drawdown": bt.max_drawdown,
-                    "total_trades": bt.total_trades,
-                    "win_rate": bt.win_rate,
-                    "created_at": bt.created_at.isoformat() if bt.created_at else None,
+                    "id": str(bt["_id"]),
+                    "strategy_name": bt.get("strategy_name"),
+                    "exchange": bt.get("exchange"),
+                    "symbol": bt.get("symbol"),
+                    "timeframe": bt.get("timeframe"),
+                    "roi": bt.get("roi"),
+                    "max_drawdown": bt.get("max_drawdown"),
+                    "total_trades": bt.get("total_trades"),
+                    "win_rate": bt.get("win_rate"),
+                    "created_at": bt.get("created_at").isoformat() if bt.get("created_at") else None,
                 }
                 for bt in backtests
             ],
@@ -172,17 +166,13 @@ async def get_backtest_history(
 @router.get("/result/{backtest_id}")
 async def get_backtest_result(
     backtest_id: str,
-    db: AsyncSession = Depends(get_db),
+    db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     """
-    Get detailed backtest result by ID
+    Get detailed backtest result by ID - MongoDB version
     """
-    from sqlalchemy import select
-    
     try:
-        query = select(BacktestResult).where(BacktestResult.id == backtest_id)
-        result = await db.execute(query)
-        backtest = result.scalar_one_or_none()
+        backtest = await db.backtest_results.find_one({"_id": backtest_id})
         
         if not backtest:
             raise HTTPException(status_code=404, detail="Backtest not found")
@@ -190,25 +180,25 @@ async def get_backtest_result(
         return {
             "success": True,
             "backtest": {
-                "id": backtest.id,
-                "strategy_name": backtest.strategy_name,
-                "strategy_data": backtest.strategy_data,
-                "exchange": backtest.exchange,
-                "symbol": backtest.symbol,
-                "timeframe": backtest.timeframe,
-                "initial_capital": backtest.initial_capital,
-                "final_capital": backtest.final_capital,
-                "total_return": backtest.total_return,
-                "roi": backtest.roi,
-                "max_drawdown": backtest.max_drawdown,
-                "sharpe_ratio": backtest.sharpe_ratio,
-                "total_trades": backtest.total_trades,
-                "win_rate": backtest.win_rate,
-                "profit_factor": backtest.profit_factor,
-                "trades": backtest.trades,
-                "equity_curve": backtest.equity_curve,
-                "execution_time_ms": backtest.execution_time_ms,
-                "created_at": backtest.created_at.isoformat() if backtest.created_at else None,
+                "id": str(backtest["_id"]),
+                "strategy_name": backtest.get("strategy_name"),
+                "strategy_data": backtest.get("strategy_data"),
+                "exchange": backtest.get("exchange"),
+                "symbol": backtest.get("symbol"),
+                "timeframe": backtest.get("timeframe"),
+                "initial_capital": backtest.get("initial_capital"),
+                "final_capital": backtest.get("final_capital"),
+                "total_return": backtest.get("total_return"),
+                "roi": backtest.get("roi"),
+                "max_drawdown": backtest.get("max_drawdown"),
+                "sharpe_ratio": backtest.get("sharpe_ratio"),
+                "total_trades": backtest.get("total_trades"),
+                "win_rate": backtest.get("win_rate"),
+                "profit_factor": backtest.get("profit_factor"),
+                "trades": backtest.get("trades"),
+                "equity_curve": backtest.get("equity_curve"),
+                "execution_time_ms": backtest.get("execution_time_ms"),
+                "created_at": backtest.get("created_at").isoformat() if backtest.get("created_at") else None,
             },
         }
     except HTTPException:
