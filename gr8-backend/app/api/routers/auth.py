@@ -155,48 +155,6 @@ async def login(
         role=user["role"],
         is_first_user=is_first_user,
     )
-        from sqlalchemy import text
-
-        # Begin nested transaction for atomic operation
-        nested = await db.begin_nested()
-
-        try:
-            # Check user count again within transaction
-            count_result = await db.execute(select(func.count(User.id)))
-            user_count = count_result.scalar() or 0
-
-            # First user becomes admin automatically
-            role = "admin" if user_count == 0 else "user"
-            is_first_user = (role == "admin")
-
-            # Create new user
-            user = User(
-                wallet_address=normalized_address,
-                role=role
-            )
-            db.add(user)
-
-            # Commit nested transaction
-            await nested.commit()
-
-            # Commit main transaction
-            await db.commit()
-            await db.refresh(user)
-        except Exception as e:
-            # Rollback nested transaction on error
-            await nested.rollback()
-            raise e
-
-    # Generate JWT token
-    access_token = create_access_token(wallet_address=user.wallet_address)
-
-    return LoginResponse(
-        access_token=access_token,
-        token_type="bearer",
-        wallet_address=user.wallet_address,
-        role=user.role,
-        is_first_user=is_first_user
-    )
 
 
 @router.get("/me", response_model=UserResponse, status_code=status.HTTP_200_OK)
