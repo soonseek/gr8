@@ -133,7 +133,7 @@ async def get_market_data(
     start_date: datetime = Query(..., description="Start date (ISO 8601 format)"),
     end_date: datetime = Query(..., description="End date (ISO 8601 format)"),
     exchange: str = Query("binance", description="Exchange identifier (binance, okx, bybit, gate, bitget)"),
-    db: AsyncSession = Depends(get_db),
+    db: AsyncIOMotorDatabase = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """
@@ -265,7 +265,7 @@ async def fetch_and_store_market_data(
     start_date: datetime = Query(..., description="Start date (ISO 8601)"),
     end_date: datetime = Query(..., description="End date (ISO 8601)"),
     exchange: str = Query("binance", description="Exchange identifier"),
-    db: AsyncSession = Depends(get_db),
+    db: AsyncIOMotorDatabase = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """
@@ -371,10 +371,9 @@ async def perform_sync_job(
         timeframe: Timeframe to sync (None = all timeframes)
         db_session_factory: Database session factory
     """
-    from app.core.database import AsyncSessionLocal
-
-    async with AsyncSessionLocal() as db:
-        try:
+    db = get_db()
+    # MongoDB background task
+    try:
             sync_jobs[job_id]["status"] = "running"
 
             # Determine scope of sync
@@ -505,7 +504,7 @@ async def sync_market_data(
         exchange,
         base_symbol,
         timeframe,
-        AsyncSessionLocal,
+        None,  # db_session_factory not needed for MongoDB
     )
 
     logger.info(f"Sync job {job_id} started by admin {current_user.wallet_address}")
