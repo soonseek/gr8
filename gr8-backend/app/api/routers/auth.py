@@ -64,15 +64,15 @@ class RefreshTokenResponse(BaseModel):
 @router.post("/login", response_model=LoginResponse, status_code=status.HTTP_200_OK)
 async def login(
     request: LoginRequest,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncIOMotorDatabase = Depends(get_db)
 ):
-    """Web3 wallet login with signature verification.
+    """Web3 wallet login with signature verification - MongoDB version.
 
     Verifies the blockchain signature and returns a JWT token.
 
     Args:
         request: Login request with wallet_address, signature, and message
-        db: Database session
+        db: MongoDB database
 
     Returns:
         LoginResponse: JWT token and wallet address
@@ -103,21 +103,58 @@ async def login(
 
     logger.info(f"Signature verified successfully for wallet: {request.wallet_address}")
 
-    # Check if user exists, create if not
-    from sqlalchemy import select, func
-
+    # Check if user exists, create if not (MongoDB)
     normalized_address = request.wallet_address.lower()
-
-    result = await db.execute(
-        select(User).where(User.wallet_address == normalized_address)
-    )
-    user = result.scalar_one_or_none()
-
+    
+    user = await db.users.find_one({"wallet_address": normalized_address})
+    
     is_first_user = False
 
     if not user:
-        # Use a nested transaction to prevent race condition
-        # This ensures atomic check-and-create operation
+        # Check if this is the first user (auto-assign admin role)
+        user_count = await db.users.count_documents({})
+        is_first_user = (user_count == 0)
+        
+        # Create new user
+        user_doc = {
+            "wallet_address": normalized_address,
+            "role": "admin" if is_first_user else "user",
+            "status": "active",
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow(),
+        }
+        
+        result = await db.users.insert_one(user_doc)
+        user = await db.users.find_one({"_id": result.inserted_id})
+        
+        logger.info(
+            f"Created new user: {normalized_address} "
+            f"(role: {'admin' if is_first_user else 'user'}, "
+            f"first_user: {is_first_user})"
+        )
+    else:
+        # Update last login
+        await db.users.update_one(
+            {"wallet_address": normalized_address},
+            {"$set": {"updated_at": datetime.utcnow()}}
+        )
+
+    # Create JWT token
+    token_data = {
+        "sub": user["wallet_address"],
+        "role": user["role"],
+    }
+    access_token = create_access_token(token_data)
+
+    logger.info(f"Login successful for wallet: {request.wallet_address} (role: {user['role']})")
+
+    return LoginResponse(
+        access_token=access_token,
+        token_type="bearer",
+        wallet_address=user["wallet_address"],
+        role=user["role"],
+        is_first_user=is_first_user,
+    )
         from sqlalchemy import text
 
         # Begin nested transaction for atomic operation
