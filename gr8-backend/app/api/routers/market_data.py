@@ -43,8 +43,8 @@ router = APIRouter(prefix="/api/v1/market", tags=["Market Data"])
 
 async def get_current_user(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
-    db: AsyncSession = Depends(get_db),
-) -> User:
+    db: AsyncIOMotorDatabase = Depends(get_db),
+) -> Dict:
     """
     Get current authenticated user from JWT token
 
